@@ -7,21 +7,22 @@ import type { PanelResult, TokenCount } from "../types/results";
 
 export interface OrchestratorClient {
   session: {
-    prompt: (path: string, body: {
+    prompt: (params: {
+      sessionID: string;
       model: { providerID: string; modelID: string };
-      prompt: string;
+      parts: Array<{ type: string; text?: string; [key: string]: unknown }>;
     }) => Promise<PromptResponse>;
   };
 }
 
 export interface PromptResponse {
-  choices?: Array<{
-    message?: { content?: string };
-  }>;
-  usage?: {
-    prompt_tokens?: number;
-    completion_tokens?: number;
+  info: {
+    tokens: {
+      input: number;
+      output: number;
+    };
   };
+  parts: Array<{ type: string; text?: string }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -83,12 +84,13 @@ async function callPanelistWithRetry(
   let lastError: unknown;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const promise = client.session.prompt(sessionID, {
+      const promise = client.session.prompt({
+        sessionID,
         model: {
           providerID: model.providerId,
           modelID: model.modelId,
         },
-        prompt: sanitizedPrompt,
+        parts: [{ type: "text", text: sanitizedPrompt }],
       });
       return await withTimeout(promise, timeoutMs, key);
     } catch (err) {
@@ -147,11 +149,14 @@ export async function fanOut(
         const latencyMs = Date.now() - (startTimes.get(key) ?? 0);
 
         const content =
-          response.choices?.[0]?.message?.content ?? "";
+          response.parts
+            .filter((p) => p.type === "text" && typeof p.text === "string")
+            .map((p) => p.text!)
+            .join("") ?? "";
 
         const tokenCount: TokenCount = {
-          prompt: response.usage?.prompt_tokens ?? 0,
-          completion: response.usage?.completion_tokens ?? 0,
+          prompt: response.info.tokens.input,
+          completion: response.info.tokens.output,
         };
 
         return {

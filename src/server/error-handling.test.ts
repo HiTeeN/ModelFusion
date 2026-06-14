@@ -21,8 +21,8 @@ function makeConfig(models: PanelModel[]): FusionConfig {
 
 function successResponse(content: string): PromptResponse {
   return {
-    choices: [{ message: { content } }],
-    usage: { prompt_tokens: 10, completion_tokens: 20 },
+    info: { tokens: { input: 10, output: 20 } },
+    parts: [{ type: "text", text: content }],
   };
 }
 
@@ -220,7 +220,7 @@ describe("runJudge JSON repair", () => {
     const client: JudgeClient = {
       session: {
         prompt: async () => ({
-          choices: [{ message: { content: "```json\n" + validJsonString + "\n```" } }],
+          parts: [{ type: "text", text: "```json\n" + validJsonString + "\n```" }],
         }),
       },
     };
@@ -239,7 +239,7 @@ describe("runJudge JSON repair", () => {
     const client: JudgeClient = {
       session: {
         prompt: async () => ({
-          choices: [{ message: { content: "Here's my analysis:\n" + validJsonString + "\nLet me know if you need more detail." } }],
+          parts: [{ type: "text", text: "Here's my analysis:\n" + validJsonString + "\nLet me know if you need more detail." }],
         }),
       },
     };
@@ -257,7 +257,7 @@ describe("runJudge JSON repair", () => {
     const client: JudgeClient = {
       session: {
         prompt: async () => ({
-          choices: [{ message: { content: "Sorry, I couldn't analyze this properly." } }],
+          parts: [{ type: "text", text: "Sorry, I couldn't analyze this properly." }],
         }),
       },
     };
@@ -274,7 +274,7 @@ describe("runJudge JSON repair", () => {
     const client: JudgeClient = {
       session: {
         prompt: async () => ({
-          choices: [{ message: { content: "[1, 2, 3]" } }],
+          parts: [{ type: "text", text: "[1, 2, 3]" }],
         }),
       },
     };
@@ -353,9 +353,9 @@ describe("judge panel result sanitization", () => {
     const capturedBodies: Array<Record<string, unknown>> = [];
     const client: JudgeClient = {
       session: {
-        prompt: async (_path, body) => {
-          capturedBodies.push(body as Record<string, unknown>);
-          return { choices: [{ message: { content: validJsonString } }] };
+        prompt: async (params) => {
+          capturedBodies.push(params as unknown as Record<string, unknown>);
+          return { parts: [{ type: "text", text: validJsonString }] };
         },
       },
     };
@@ -367,9 +367,9 @@ describe("judge panel result sanitization", () => {
     expect(result).not.toBeNull();
 
     // THEN the prompt sent to the judge contains sanitized content (no null bytes)
-    const messages = capturedBodies[0]?.messages as Array<{ content: string }> | undefined;
-    expect(messages).toBeDefined();
-    const promptContent = messages![0].content;
+    const parts = capturedBodies[0]?.parts as Array<{ type?: string; text?: string }> | undefined;
+    expect(parts).toBeDefined();
+    const promptContent = parts!.find((p) => p.type === "text")?.text ?? "";
     expect(promptContent).not.toContain("\x00");
     expect(promptContent).not.toContain("\x1F");
     expect(promptContent).toContain("Answer: 42"); // core content preserved

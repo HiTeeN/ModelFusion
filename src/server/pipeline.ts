@@ -17,7 +17,13 @@ import { RecursionGuard } from "./recursion-guard";
 
 export interface PipelineClient {
   session: {
-    prompt: (path: string, body: Record<string, unknown>) => Promise<unknown>;
+    prompt: (params: {
+      sessionID: string;
+      model: { providerID: string; modelID: string };
+      parts: Array<{ type: string; text?: string; [key: string]: unknown }>;
+      format?: { type: string; schema?: unknown };
+      system?: string;
+    }) => Promise<unknown>;
   };
 }
 

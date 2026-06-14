@@ -126,9 +126,9 @@ describe("FusionPlugin", () => {
       hooks.event!({ event: {} } as any),
     ).resolves.toBeUndefined();
 
-    // Tool execution — rejects without a valid pipeline client
+    // Tool execution — resolves even without a valid pipeline client (pipeline catches errors)
     await expect(
       hooks.tool!["fusion:deliberate"].execute({ prompt: "test" } as any, {} as any),
-    ).rejects.toBeDefined();
+    ).resolves.toBeDefined();
   });
 });

@@ -3,6 +3,7 @@ import { createChatMessageHook, type ChatMessagePluginState } from "./chat-messa
 import { RecursionGuard } from "../recursion-guard";
 import type { FusionConfig } from "../../types/config";
 import type { FusionResult } from "../../types/results";
+import type { UserMessage, Part } from "@opencode-ai/sdk";
 
 // ---------------------------------------------------------------------------
 // Test fixtures
@@ -34,15 +35,22 @@ function makeInput(overrides: Partial<Parameters<ReturnType<typeof createChatMes
   };
 }
 
-function makeOutput(parts: Array<{ type?: string; text?: string; [key: string]: unknown }> = []): Parameters<ReturnType<typeof createChatMessageHook>>[1] {
+function makeOutput(parts: Part[] = []): { message: UserMessage; parts: Part[] } {
   return {
-    message: { id: "msg-1", role: "user", parts: [] },
+    message: {
+      id: "msg-1",
+      sessionID: "test-session",
+      role: "user",
+      time: { created: Date.now() },
+      agent: "test-agent",
+      model: { providerID: "openai", modelID: "gpt-4o" },
+    } as UserMessage,
     parts,
   };
 }
 
-function textPart(text: string) {
-  return { type: "text", text };
+function textPart(text: string): Part {
+  return { type: "text", text } as Part;
 }
 
 function makePluginState(overrides: Partial<ChatMessagePluginState> = {}): ChatMessagePluginState {

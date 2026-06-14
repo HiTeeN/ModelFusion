@@ -68,7 +68,7 @@ function makeBeforeInput(overrides: Partial<ToolExecuteBeforeInput> = {}): ToolE
 
 function makeBeforeOutput(overrides: Partial<ToolExecuteBeforeOutput> = {}): ToolExecuteBeforeOutput {
   return {
-    args: { prompt: "What is the best language for a CLI tool?" },
+    args: { prompt: "What is the best language for a CLI tool?" } as any,
     ...overrides,
   };
 }
@@ -78,7 +78,7 @@ function makeAfterInput(overrides: Partial<ToolExecuteAfterInput> = {}): ToolExe
     tool: "fusion:deliberate",
     sessionID: "test-session",
     callID: "call-1",
-    args: { prompt: "What is the best language for a CLI tool?" },
+    args: { prompt: "What is the best language for a CLI tool?" } as any,
     ...overrides,
   };
 }
@@ -87,7 +87,7 @@ function makeAfterOutput(overrides: Partial<ToolExecuteAfterOutput> = {}): ToolE
   return {
     title: "",
     output: "",
-    metadata: {},
+    metadata: {} as any,
     ...overrides,
   };
 }

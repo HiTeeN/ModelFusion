@@ -29,7 +29,9 @@ function mockApi(overrides: Partial<TuiPluginApi> = {}): TuiPluginApi {
       formatSequence: mock(() => ""),
       formatBindings: mock(() => undefined),
     },
-    keymap: {} as TuiPluginApi["keymap"],
+    keymap: {
+      registerLayer: mock(() => {}),
+    } as TuiPluginApi["keymap"],
     mode: {
       current: mock(() => "normal"),
       push: mock(() => () => {}),
@@ -100,29 +102,27 @@ describe("FusionTuiPlugin", () => {
     expect(typeof FusionTuiPlugin).toBe("function");
   });
 
-  test("registers the /fusion command via api.command.register", async () => {
+  test("registers the /fusion command via api.keymap.registerLayer", async () => {
     const api = mockApi();
 
     await FusionTuiPlugin(api, undefined, undefined as any);
 
-    expect(api.command!.register).toHaveBeenCalledTimes(1);
+    expect(api.keymap.registerLayer).toHaveBeenCalledTimes(1);
 
-    // Extract the callback passed to register
-    const registerCb = (api.command!.register as ReturnType<typeof mock>)
-      .mock.calls[0][0] as () => TuiCommand[];
+    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
+      .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
 
-    const commands = registerCb();
+    const commands = layer.commands;
 
     expect(commands.length).toBeGreaterThanOrEqual(1);
 
-    const fusionCmd = commands.find((c) => c.value === "fusion:deliberate");
+    const fusionCmd = commands.find((c) => c.name === "fusion:deliberate");
     expect(fusionCmd).toBeDefined();
     expect(fusionCmd!.title).toContain("Fusion");
-    expect(fusionCmd!.slash).toBeDefined();
-    expect(fusionCmd!.slash!.name).toBe("fusion");
-    expect(fusionCmd!.slash!.aliases).toContain("deliberate");
+    expect(fusionCmd!.slashName).toBe("fusion");
+    expect((fusionCmd!.slashAliases as string[])).toContain("deliberate");
     expect(fusionCmd!.category).toBe("fusion");
-    expect(typeof fusionCmd!.onSelect).toBe("function");
+    expect(typeof fusionCmd!.run).toBe("function");
   });
 
   test("initializes plugin state in api.kv", async () => {
@@ -156,18 +156,18 @@ describe("FusionTuiPlugin", () => {
     expect(api.lifecycle.onDispose).toHaveBeenCalledTimes(1);
   });
 
-  test("onSelect handler calls ui.toast (placeholder)", async () => {
+  test("run handler calls ui.toast (placeholder)", async () => {
     const api = mockApi();
 
     await FusionTuiPlugin(api, undefined, undefined as any);
 
-    const registerCb = (api.command!.register as ReturnType<typeof mock>)
-      .mock.calls[0][0] as () => TuiCommand[];
+    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
+      .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
 
-    const commands = registerCb();
-    const fusionCmd = commands.find((c) => c.value === "fusion:deliberate")!;
+    const commands = layer.commands;
+    const fusionCmd = commands.find((c) => c.name === "fusion:deliberate")!;
 
-    await fusionCmd.onSelect!();
+    await (fusionCmd.run as () => Promise<void>)();
 
     expect(api.ui.toast).toHaveBeenCalledTimes(1);
     const toastCall = (api.ui.toast as ReturnType<typeof mock>).mock.calls[0][0];

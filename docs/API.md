@@ -70,17 +70,17 @@ import { FusionTuiPlugin } from "@modelfusion/plugin/tui";
 ```typescript
 const FusionTuiPlugin: TuiPlugin = async (
   api: TuiPluginApi,
-  _options?: unknown,
-  _meta?: unknown,
+  _options?: PluginOptions,
+  _meta?: TuiPluginMeta,
 ) => Promise<void>;
 ```
 
 **Parameters**:
-- `api` — TUI plugin API for registering commands, UI elements, and lifecycle hooks.
+- `api` — TUI plugin API for registering commands via `api.keymap.registerLayer`, UI elements, and lifecycle hooks.
 - `_options` — Plugin options (currently unused, but required by type).
-- `_meta` — Plugin metadata (currently unused, but required by type).
+- `_meta` — Plugin metadata from the runtime (package info, version, etc.).
 
-**Returns**: `Promise<void>` (registers commands and event handlers as side effects).
+**Returns**: `Promise<void>` (registers slash commands and event handlers as side effects via `api.keymap.registerLayer`).
 
 **Example**:
 ```typescript
@@ -118,7 +118,7 @@ async function runFusionPipeline(
 **Parameters**:
 | Param | Type | Description |
 |---|---|---|
-| `client` | `PipelineClient` | Session client with `session.prompt()` method |
+| `client` | `PipelineClient` | Session client with `session.prompt({ sessionID, model, parts })` method |
 | `sessionID` | `string` | Current session identifier |
 | `prompt` | `string` | The user's question or prompt |
 | `config` | `FusionConfig` | Plugin configuration |
@@ -154,7 +154,7 @@ async function fanOut(
 **Parameters**:
 | Param | Type | Default | Description |
 |---|---|---|---|
-| `client` | `OrchestratorClient` | — | Session client with `session.prompt()` |
+| `client` | `OrchestratorClient` | — | Session client with `session.prompt({ sessionID, model, parts })` |
 | `sessionID` | `string` | — | Current session |
 | `prompt` | `string` | — | Verbatim prompt (no modifications) |
 | `models` | `PanelModel[]` | — | Array of models to query |
@@ -189,7 +189,7 @@ async function runJudge(
 **Parameters**:
 | Param | Type | Description |
 |---|---|---|
-| `client` | `JudgeClient` | Session client with `session.prompt()` |
+| `client` | `JudgeClient` | Session client with `session.prompt({ sessionID, model, parts, format })` |
 | `sessionID` | `string` | Current session |
 | `panelResults` | `PanelResult[]` | All panelist responses (success + failure) |
 | `config` | `FusionConfig` | Plugin config (for judge model selection) |
@@ -223,7 +223,7 @@ async function synthesize(
 **Parameters**:
 | Param | Type | Description |
 |---|---|---|
-| `client` | `SynthesizerClient` | Session client with `session.prompt()` |
+| `client` | `SynthesizerClient` | Session client with `session.prompt({ sessionID, model, parts })` |
 | `sessionID` | `string` | Current session |
 | `judgeOutput` | `JudgeOutput` | Structured analysis from judge |
 | `panelResults` | `PanelResult[]` | Original panel responses |
@@ -377,6 +377,25 @@ function createChatMessageHook(
 
 **ChatMessagePluginState**: `{ config: FusionConfig, recursionGuard: RecursionGuard, pipeline: typeof runFusionPipeline, client: PipelineClient }`
 
+**ChatMessageInput**:
+```typescript
+{
+  sessionID: string;
+  agent?: string;
+  model?: { providerID: string; modelID: string };
+  messageID?: string;
+  variant?: string;
+}
+```
+
+**ChatMessageOutput**:
+```typescript
+{
+  message: UserMessage;
+  parts: Part[];
+}
+```
+
 ---
 
 ### createChatParamsHook
@@ -395,6 +414,28 @@ function createChatParamsHook(
 ```
 
 **ChatParamsPluginState**: `{ config: FusionConfig, recursionGuard: RecursionGuard }`
+
+**ChatParamsInput**:
+```typescript
+{
+  sessionID: string;
+  agent: string;
+  model: Model;
+  provider: ProviderContext;
+  message: UserMessage;
+}
+```
+
+**ChatParamsOutput**:
+```typescript
+{
+  temperature: number;
+  topP: number;
+  topK: number;
+  maxOutputTokens: number | undefined;
+  options: Record<string, unknown>;
+}
+```
 
 **Behavior**: Sets `temperature` and `maxOutputTokens` when fusion is active. `maxOutputTokens` = `config.maxToolCalls * 1000`.
 
@@ -431,7 +472,7 @@ import { createSystemTransformHook } from "./hooks/system-transform";
 ```typescript
 function createSystemTransformHook(
   pluginState: { config: FusionConfig },
-): (input: { sessionID?: string; model: { providerID: string; modelID: string } }, output: { system: string[] }) => Promise<void>;
+): (input: { sessionID?: string; model: Model }, output: { system: string[] }) => Promise<void>;
 ```
 
 **Deliberation Prompt**:
@@ -443,7 +484,7 @@ You have access to a multi-model deliberation tool (fusion:deliberate). For comp
 
 ### createFusionTool
 
-Creates the `fusion:deliberate` tool definition backed by the full pipeline.
+Creates the `fusion:deliberate` tool definition using the `tool()` API from `@opencode-ai/plugin/tool`.
 
 ```typescript
 import { createFusionTool } from "./hooks/tool-registration";
@@ -451,18 +492,30 @@ import { createFusionTool } from "./hooks/tool-registration";
 
 **Signature**:
 ```typescript
-function createFusionTool(
-  pipelineFn: typeof runFusionPipeline,
-): ToolDefinition;
+function createFusionTool(deps: {
+  pipelineFn: typeof runFusionPipeline;
+  client: PipelineClient;
+  config: FusionConfig;
+  recursionGuard: RecursionGuard;
+  originalModel: OriginalModel;
+}): ToolDefinition;
 ```
 
-**ToolDefinition**:
+**ToolDefinition** (from `tool()`):
 ```typescript
-{
-  description: string;
-  args: { prompt: z.ZodString };
-  execute: (args: Record<string, unknown>, ctx: unknown) => Promise<string>;
-}
+import { tool } from "@opencode-ai/plugin/tool";
+
+tool({
+  description: "...",
+  args: {
+    prompt: tool.schema.string().describe("..."),
+  },
+  async execute(args, context) {
+    const { prompt } = args;
+    // ... pipeline call
+    return JSON.stringify(result);
+  },
+});
 ```
 
 ---
@@ -500,6 +553,26 @@ function createToolExecuteAfterHook(
 ```
 
 **ToolExecutePluginState**: `{ recursionGuard: RecursionGuard, fusionResult?: FusionResult }`
+
+**ToolExecuteBeforeInput**:
+```typescript
+{ tool: string; sessionID: string; callID: string }
+```
+
+**ToolExecuteBeforeOutput**:
+```typescript
+{ args: any }
+```
+
+**ToolExecuteAfterInput**:
+```typescript
+{ tool: string; sessionID: string; callID: string; args: any }
+```
+
+**ToolExecuteAfterOutput**:
+```typescript
+{ title: string; output: string; metadata: any }
+```
 
 ---
 

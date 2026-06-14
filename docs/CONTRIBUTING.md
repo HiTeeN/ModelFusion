@@ -152,30 +152,41 @@ Client interfaces are loosely typed to avoid SDK coupling. Instead of importing 
 // In orchestrator.ts — not importing from @opencode-ai/sdk
 export interface OrchestratorClient {
   session: {
-    prompt: (path: string, body: {
+    prompt: (params: {
+      sessionID: string;
       model: { providerID: string; modelID: string };
-      prompt: string;
+      parts: Array<{ type: string; text?: string; [key: string]: unknown }>;
     }) => Promise<PromptResponse>;
   };
 }
+
+export interface PromptResponse {
+  info: {
+    tokens: {
+      input: number;
+      output: number;
+    };
+  };
+  parts: Array<{ type: string; text?: string }>;
+}
 ```
 
-This pattern keeps the plugin resilient to SDK version changes.
+This pattern keeps the plugin resilient to SDK version changes. The v1.17.6 API uses a single params object with `parts` instead of the old two-argument `session.prompt(sessionID, { model, prompt })` format.
 
 ### Verbatim Prompting Rule
 
 All panelists receive the exact user prompt with no modifications:
 
 ```typescript
-// CORRECT — verbatim
-const response = await client.session.prompt(sessionID, {
+// CORRECT — verbatim (v1.17.6 single-object format)
+const response = await client.session.prompt({
+  sessionID,
   model: { providerID, modelID },
-  prompt: userPrompt,  // exactly as received
+  parts: [{ type: "text", text: userPrompt }],  // exactly as received
 });
 
 // WRONG — no lenses, roles, or personas
-// model: { providerID, modelID },
-// prompt: `[Role: expert] ${userPrompt}`  // NO
+// parts: [{ type: "text", text: `[Role: expert] ${userPrompt}` }]  // NO
 ```
 
 ### Factory Pattern for Hooks
@@ -310,13 +321,26 @@ return {
 
 `argumentHint` is a non-standard extension to `TuiCommand`. It works in OpenCode's TUI but is not part of the official `@opencode-ai/plugin/tui` type. If tests or the runtime complain, it may need to be added as a type assertion.
 
-### api.command is Optional
+### TUI Commands Use api.keymap.registerLayer
 
-`TuiPluginApi.command` is typed as optional (`command?`) in the SDK type:
+In v1.17.6, TUI commands are registered via `api.keymap.registerLayer` instead of the old `api.command` API:
 
 ```typescript
-api.command?.register(...)  // use optional chaining
-api.command!.register(...)  // or non-null assertion in tests
+api.keymap.registerLayer({
+  commands: [
+    {
+      name: "fusion:deliberate",
+      title: "Fusion: Deliberate",
+      desc: "...",
+      category: "fusion",
+      namespace: "palette",
+      slashName: "fusion",
+      slashAliases: ["deliberate", "panel"],
+      run: async () => { /* ... */ },
+    },
+  ],
+  bindings: [],
+});
 ```
 
 ### mock() Return Type in bun:test
@@ -369,6 +393,13 @@ const { runFusionPipeline } = await import("./pipeline");
 The SDK `Message` type is `UserMessage | AssistantMessage`. When injecting system-role messages, use a type assertion:
 
 ```typescript
+const base = {
+  id: `fusion-${role}-${Date.now()}`,
+  sessionID: "",
+  role,  // "system" | "assistant"
+  time: { created: Date.now() },
+};
+
 const info: Message = base as Message;  // runtime accepts system role
 ```
 

@@ -19,8 +19,8 @@ function makeConfig(models: PanelModel[]): FusionConfig {
 
 function successResponse(content: string): PromptResponse {
   return {
-    choices: [{ message: { content } }],
-    usage: { prompt_tokens: 10, completion_tokens: 20 },
+    info: { tokens: { input: 10, output: 20 } },
+    parts: [{ type: "text", text: content }],
   };
 }
 
@@ -35,8 +35,9 @@ function mockHappyClient(models: PanelModel[]): { client: OrchestratorClient; st
 
   const client: OrchestratorClient = {
     session: {
-      prompt: async (_path, body) => {
-        state.calls.push(body);
+      prompt: async (params) => {
+        const textPart = params.parts.find((p) => p.type === "text");
+        state.calls.push({ model: params.model, prompt: textPart?.text ?? "" });
         concurrent++;
         state.maxConcurrent = Math.max(state.maxConcurrent, concurrent);
 
@@ -45,7 +46,7 @@ function mockHappyClient(models: PanelModel[]): { client: OrchestratorClient; st
 
         concurrent--;
 
-        const key = `${body.model.providerID}/${body.model.modelID}`;
+        const key = `${params.model.providerID}/${params.model.modelID}`;
         return successResponse(`Response from ${key}`);
       },
     },
@@ -60,8 +61,9 @@ function mockPartialFailClient(models: PanelModel[]): { client: OrchestratorClie
 
   const client: OrchestratorClient = {
     session: {
-      prompt: async (_path, body) => {
-        state.calls.push(body);
+      prompt: async (params) => {
+        const textPart = params.parts.find((p) => p.type === "text");
+        state.calls.push({ model: params.model, prompt: textPart?.text ?? "" });
         concurrent++;
         state.maxConcurrent = Math.max(state.maxConcurrent, concurrent);
 
@@ -69,11 +71,11 @@ function mockPartialFailClient(models: PanelModel[]): { client: OrchestratorClie
 
         concurrent--;
 
-        if (body.model.modelID === "fail-model") {
+        if (params.model.modelID === "fail-model") {
           throw new Error("Simulated API failure");
         }
 
-        const key = `${body.model.providerID}/${body.model.modelID}`;
+        const key = `${params.model.providerID}/${params.model.modelID}`;
         return successResponse(`Response from ${key}`);
       },
     },
@@ -88,8 +90,9 @@ function mockAllFailClient(): { client: OrchestratorClient; state: MockState } {
 
   const client: OrchestratorClient = {
     session: {
-      prompt: async (_path, body) => {
-        state.calls.push(body);
+      prompt: async (params) => {
+        const textPart = params.parts.find((p) => p.type === "text");
+        state.calls.push({ model: params.model, prompt: textPart?.text ?? "" });
         concurrent++;
         state.maxConcurrent = Math.max(state.maxConcurrent, concurrent);
 
@@ -97,7 +100,7 @@ function mockAllFailClient(): { client: OrchestratorClient; state: MockState } {
 
         concurrent--;
 
-        throw new Error(`Simulated failure for ${body.model.modelID}`);
+        throw new Error(`Simulated failure for ${params.model.modelID}`);
       },
     },
   };

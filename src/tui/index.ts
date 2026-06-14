@@ -1,4 +1,9 @@
-import type { TuiPlugin, TuiPluginApi, TuiCommand } from "@opencode-ai/plugin/tui";
+import type { PluginOptions } from "@opencode-ai/plugin";
+import type {
+  TuiPlugin,
+  TuiPluginApi,
+  TuiPluginMeta,
+} from "@opencode-ai/plugin/tui";
 
 // ---------------------------------------------------------------------------
 // FusionTuiPlugin — TUI plugin entry point
@@ -12,7 +17,7 @@ import type { TuiPlugin, TuiPluginApi, TuiCommand } from "@opencode-ai/plugin/tu
  * @param api     - TUI plugin API for registering commands, UI elements, and
  *                 lifecycle hooks.
  * @param _options - Optional plugin configuration (currently unused).
- * @param _meta    - Optional plugin metadata (currently unused).
+ * @param _meta    - Plugin metadata.
  * @returns A `TuiPlugin` instance with registered commands and event handlers.
  *
  * @example
@@ -24,8 +29,8 @@ import type { TuiPlugin, TuiPluginApi, TuiCommand } from "@opencode-ai/plugin/tu
  */
 export const FusionTuiPlugin: TuiPlugin = async (
   api: TuiPluginApi,
-  _options?,
-  _meta?,
+  _options: PluginOptions | undefined,
+  _meta: TuiPluginMeta,
 ) => {
   // -------------------------------------------------------------------------
   // State persistence via api.kv
@@ -42,21 +47,20 @@ export const FusionTuiPlugin: TuiPlugin = async (
   // -------------------------------------------------------------------------
   // Register /fusion slash command
   // -------------------------------------------------------------------------
-  api.command?.register(() => {
-    const commands: TuiCommand[] = [
+  api.keymap.registerLayer({
+    commands: [
       {
+        name: "fusion:deliberate",
         title: "Fusion: Deliberate",
-        value: "fusion:deliberate",
-        description:
+        desc:
           "Invoke multi-model deliberation — a panel of AI models analyzes " +
           "your question, a judge compares their responses, and a synthesizer " +
           "produces a final answer with attribution.",
         category: "fusion",
-        slash: {
-          name: "fusion",
-          aliases: ["deliberate", "panel"],
-        },
-        onSelect: async (_dialog) => {
+        namespace: "palette",
+        slashName: "fusion",
+        slashAliases: ["deliberate", "panel"],
+        run: async () => {
           // TODO: Task 23-25 — implement command logic
           // Placeholder: show a toast indicating the command was invoked
           api.ui.toast({
@@ -66,8 +70,8 @@ export const FusionTuiPlugin: TuiPlugin = async (
           });
         },
       },
-    ];
-    return commands;
+    ],
+    bindings: [],
   });
 
   // -------------------------------------------------------------------------

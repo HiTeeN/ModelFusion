@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import type { FusionConfig } from "../../types/config";
+import type { Model } from "@opencode-ai/sdk";
 
 // ---------------------------------------------------------------------------
 // Deliberation Prompt
@@ -23,7 +24,7 @@ export function createSystemTransformHook(pluginState: {
   config: FusionConfig;
 }): (input: {
   sessionID?: string;
-  model: { providerID: string; modelID: string };
+  model: Model;
 }, output: { system: string[] }) => Promise<void> {
   return async (_input, output) => {
     // Fusion disabled → pass through unchanged

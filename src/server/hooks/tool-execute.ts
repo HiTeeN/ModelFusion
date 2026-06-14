@@ -31,20 +31,20 @@ export interface ToolExecuteBeforeInput {
 }
 
 export interface ToolExecuteBeforeOutput {
-  args: Record<string, unknown>;
+  args: any;
 }
 
 export interface ToolExecuteAfterInput {
   tool: string;
   sessionID: string;
   callID: string;
-  args: Record<string, unknown>;
+  args: any;
 }
 
 export interface ToolExecuteAfterOutput {
   title: string;
   output: string;
-  metadata: Record<string, unknown>;
+  metadata: any;
 }
 
 // ---------------------------------------------------------------------------

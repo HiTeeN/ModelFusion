@@ -1,5 +1,7 @@
 import type { FusionConfig } from "../../types/config";
 import type { RecursionGuard } from "../recursion-guard";
+import type { Model, UserMessage } from "@opencode-ai/sdk";
+import type { ProviderContext } from "@opencode-ai/plugin";
 
 // ---------------------------------------------------------------------------
 // Plugin state passed to the hook factory
@@ -17,12 +19,9 @@ export interface ChatParamsPluginState {
 export interface ChatParamsInput {
   sessionID: string;
   agent: string;
-  model: {
-    providerID: string;
-    modelID: string;
-  };
-  provider: unknown;
-  message: unknown;
+  model: Model;
+  provider: ProviderContext;
+  message: UserMessage;
 }
 
 export interface ChatParamsOutput {

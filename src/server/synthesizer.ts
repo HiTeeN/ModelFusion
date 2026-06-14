@@ -7,10 +7,14 @@ import type { FusionConfig } from "../types/config";
 
 export interface SynthesizerClient {
   session: {
-    prompt: (
-      path: string,
-      body: Record<string, unknown>,
-    ) => Promise<{ content: string }>;
+    prompt: (params: {
+      sessionID: string;
+      model: { providerID: string; modelID: string };
+      parts: Array<{ type: string; text?: string; [key: string]: unknown }>;
+    }) => Promise<{
+      info: { tokens: { input: number; output: number } };
+      parts: Array<{ type: string; text?: string }>;
+    }>;
   };
 }
 
@@ -37,16 +41,21 @@ export async function synthesize(
 ): Promise<string> {
   const prompt = buildSynthesisPrompt(judgeOutput, panelResults);
 
-  const response = await client.session.prompt(sessionID, {
+  const response = await client.session.prompt({
+    sessionID,
     model: {
       providerID: originalModel.providerId,
       modelID: originalModel.modelId,
     },
-    prompt,
-    temperature: config.temperature,
+    parts: [{ type: "text", text: prompt }],
   });
 
-  return response.content;
+  return (
+    response.parts
+      .filter((p) => p.type === "text" && typeof p.text === "string")
+      .map((p) => p.text!)
+      .join("") ?? ""
+  );
 }
 
 // ---------------------------------------------------------------------------

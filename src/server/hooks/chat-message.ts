@@ -3,6 +3,7 @@ import type { FusionResult } from "../../types/results";
 import { RecursionGuard } from "../recursion-guard";
 import { runFusionPipeline, type PipelineClient } from "../pipeline";
 import type { OriginalModel } from "../synthesizer";
+import type { UserMessage, Part } from "@opencode-ai/sdk";
 
 // ---------------------------------------------------------------------------
 // PluginState — the dependencies injected into the hook factory
@@ -31,8 +32,8 @@ export interface ChatMessageInput {
 }
 
 export interface ChatMessageOutput {
-  message: { id: string; role: string; parts: string[] };
-  parts: Array<{ type?: string; text?: string; [key: string]: unknown }>;
+  message: UserMessage;
+  parts: Part[];
 }
 
 // ---------------------------------------------------------------------------
@@ -45,8 +46,8 @@ export interface ChatMessageOutput {
  */
 function extractPrompt(parts: ChatMessageOutput["parts"]): string {
   return parts
-    .filter((p) => p.type === "text" && typeof p.text === "string")
-    .map((p) => p.text!)
+    .filter((p): p is Part & { text: string } => p.type === "text" && typeof p.text === "string")
+    .map((p) => p.text)
     .join("\n");
 }
 
@@ -68,8 +69,8 @@ function meetsThreshold(
 /**
  * Build a TextPart from a string for injection into output.parts.
  */
-function textPart(text: string): ChatMessageOutput["parts"][number] {
-  return { type: "text", text };
+function textPart(text: string): Part {
+  return { type: "text", text } as Part;
 }
 
 // ---------------------------------------------------------------------------

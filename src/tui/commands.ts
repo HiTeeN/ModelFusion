@@ -1,4 +1,19 @@
-import type { TuiPluginApi, TuiCommand } from "@opencode-ai/plugin/tui";
+import type { TuiPluginApi, TuiDialogStack } from "@opencode-ai/plugin/tui";
+
+/**
+ * New keymap-layer command shape used by `api.keymap.registerLayer`.
+ * Matches the shape registered by `index.ts` and `config.ts`.
+ */
+export type FusionKeymapCommand = {
+  name: string;
+  title: string;
+  desc: string;
+  category: string;
+  namespace: string;
+  slashName: string;
+  slashAliases: string[];
+  run: () => Promise<void> | void;
+};
 
 /**
  * Creates the `/fusion` slash command that triggers the multi-model
@@ -8,27 +23,26 @@ import type { TuiPluginApi, TuiCommand } from "@opencode-ai/plugin/tui";
  *
  * Flow:
  *   1. User types `/fusion <question>` in the TUI prompt
- *   2. onSelect fires → extract question from dialog prompt
+ *   2. run() fires → extract question from dialog prompt
  *   3. Show "fan-out started" toast
  *   4. Delegate to server plugin (async, non-blocking)
  *   5. Server plugin runs: fan-out → judge → synthesize
  *   6. Progress toasts fire at each stage completion
  *   7. Final result toast displayed
  */
-export function createFusionCommand(api: TuiPluginApi): TuiCommand {
+export function createFusionCommand(api: TuiPluginApi): FusionKeymapCommand {
   return {
-    title: "fusion",
-    value: "fusion",
-    description:
-      "Multi-model deliberation: panel of models → judge → structured analysis",
-    category: "analysis",
-    slash: {
-      name: "fusion",
-      aliases: ["deliberate", "panel"],
-    },
-
-    onSelect: async (dialog) => {
-      const question = await extractQuestion(dialog, api);
+    name: "fusion:deliberate",
+    title: "Fusion: Deliberate",
+    desc:
+      "Multi-model deliberation: panel of models → judge → structured analysis. " +
+      "Invoke from the TUI palette or via the /fusion slash command.",
+    category: "fusion",
+    namespace: "palette",
+    slashName: "fusion",
+    slashAliases: ["deliberate", "panel"],
+    run: async () => {
+      const question = await extractQuestion(api);
 
       if (!question || !question.trim()) {
         api.ui.toast({
@@ -52,11 +66,10 @@ export function createFusionCommand(api: TuiPluginApi): TuiCommand {
   };
 }
 
-async function extractQuestion(
-  dialog: Parameters<NonNullable<TuiCommand["onSelect"]>>[0],
-  api: TuiPluginApi,
-): Promise<string> {
-  if (!dialog) {
+async function extractQuestion(api: TuiPluginApi): Promise<string> {
+  const dialog: TuiDialogStack = api.ui.dialog;
+
+  if (!dialog || !dialog.open) {
     return "";
   }
 

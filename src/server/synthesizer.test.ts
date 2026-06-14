@@ -80,15 +80,19 @@ const originalModel: OriginalModel = {
 
 function mockClient(): {
   client: SynthesizerClient;
-  capturedBody: () => Record<string, unknown> | null;
+  capturedBody: () => { model: { providerID: string; modelID: string }; prompt: string } | null;
 } {
-  let captured: Record<string, unknown> | null = null;
+  let captured: { model: { providerID: string; modelID: string }; prompt: string } | null = null;
 
   const client: SynthesizerClient = {
     session: {
-      prompt: async (_path: string, body: Record<string, unknown>) => {
-        captured = body;
-        return { content: "Synthesized answer." };
+      prompt: async (params) => {
+        const textPart = params.parts.find((p) => p.type === "text");
+        captured = { model: params.model, prompt: textPart?.text ?? "" };
+        return {
+          info: { tokens: { input: 0, output: 0 } },
+          parts: [{ type: "text", text: "Synthesized answer." }],
+        };
       },
     },
   };
@@ -118,7 +122,7 @@ describe("synthesize", () => {
     // THEN the prompt body contains the judge output as JSON
     const body = capturedBody();
     expect(body).not.toBeNull();
-    const promptStr = body!.prompt as string;
+    const promptStr = body!.prompt;
     expect(promptStr).toContain('"consensus"');
     expect(promptStr).toContain('"supportingModels"');
     expect(promptStr).toContain('"gpt-4o"');
@@ -141,7 +145,7 @@ describe("synthesize", () => {
     // THEN the prompt instructs attribution to specific models
     const body = capturedBody();
     expect(body).not.toBeNull();
-    const promptStr = body!.prompt as string;
+    const promptStr = body!.prompt;
     expect(promptStr.toLowerCase()).toContain("attribute");
     expect(promptStr).toContain("Attribute claims to specific models");
   });

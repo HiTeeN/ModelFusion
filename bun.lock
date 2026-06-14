@@ -5,8 +5,8 @@
     "": {
       "name": "@modelfusion/plugin",
       "dependencies": {
-        "@opencode-ai/plugin": "^1.4.9",
-        "@opencode-ai/sdk": "^1.4.9",
+        "@opencode-ai/plugin": "^1.17.6",
+        "@opencode-ai/sdk": "^1.17.6",
         "zod": "^4.1.8",
       },
       "devDependencies": {

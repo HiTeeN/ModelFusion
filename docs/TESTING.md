@@ -79,11 +79,16 @@ import { describe, expect, test, mock } from "bun:test";
 // Function mock
 const mockPipeline = mock(() => Promise.resolve(validFusionResult));
 
-// Inline client mock
+// Inline client mock (v1.17.6 format)
 const mockClient = {
   session: {
-    prompt: mock(async (_path: string, _body: unknown) => ({
-      choices: [{ message: { content: "mock response" } }],
+    prompt: mock(async (_params: {
+      sessionID: string;
+      model: { providerID: string; modelID: string };
+      parts: Array<{ type: string; text?: string }>;
+    }) => ({
+      info: { tokens: { input: 50, output: 100 } },
+      parts: [{ type: "text", text: "mock response" }],
     })),
   },
 };
@@ -170,12 +175,16 @@ Total: **162 tests, 624 expect() calls across 25 files** (at last full audit).
 function makeMockClient() {
   return {
     session: {
-      prompt: mock(async (_path: string, body: Record<string, unknown>) => {
-        const modelId = (body.model as { modelID: string }).modelID;
+      prompt: mock(async (_params: {
+        sessionID: string;
+        model: { providerID: string; modelID: string };
+        parts: Array<{ type: string; text?: string }>;
+      }) => {
+        const modelId = _params.model.modelID;
         if (modelId === "fail-model") throw new Error("Simulated failure");
         return {
-          choices: [{ message: { content: `response from ${modelId}` } }],
-          usage: { prompt_tokens: 50, completion_tokens: 100 },
+          info: { tokens: { input: 50, output: 100 } },
+          parts: [{ type: "text", text: `response from ${modelId}` }],
         };
       }),
     },
@@ -196,19 +205,22 @@ function makeFusionResult(overrides?: Partial<FusionResult>): FusionResult {
 }
 ```
 
-### Captured Body Pattern
+### Captured Params Pattern
 
 ```typescript
 function makeCapturingClient() {
-  const bodies: Array<Record<string, unknown>> = [];
+  const paramsList: Array<{ sessionID: string; model: { providerID: string; modelID: string }; parts: Array<{ type: string; text?: string }> }> = [];
   return {
     session: {
-      prompt: mock(async (_path: string, body: Record<string, unknown>) => {
-        bodies.push(body);  // capture for later assertion
-        return { content: "mock synthesis" };
+      prompt: mock(async (params) => {
+        paramsList.push(params);  // capture for later assertion
+        return {
+          info: { tokens: { input: 10, output: 20 } },
+          parts: [{ type: "text", text: "mock synthesis" }],
+        };
       }),
     },
-    getCapturedBodies: () => bodies,
+    getCapturedParams: () => paramsList,
   };
 }
 ```
@@ -235,7 +247,10 @@ function makeParallelTrackingClient() {
         if (current > maxConcurrent) maxConcurrent = current;
         await Promise.resolve();  // yield event loop
         current--;
-        return { choices: [{ message: { content: "ok" } }] };
+        return {
+          info: { tokens: { input: 10, output: 20 } },
+          parts: [{ type: "text", text: "ok" }],
+        };
       }),
     },
     getMaxConcurrent: () => maxConcurrent,

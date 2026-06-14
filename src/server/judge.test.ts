@@ -89,7 +89,7 @@ describe("runJudge", () => {
   test("returns parsed JudgeOutput for valid JSON response", async () => {
     // GIVEN a judge client that returns valid structured JSON
     const client = mockClient({
-      choices: [{ message: { content: JSON.stringify(validJudgeJson) } }],
+      parts: [{ type: "text", text: JSON.stringify(validJudgeJson) }],
     });
 
     // WHEN running the judge
@@ -113,7 +113,7 @@ describe("runJudge", () => {
   test("returns null for invalid JSON response", async () => {
     // GIVEN a judge client that returns non-JSON content
     const client = mockClient({
-      choices: [{ message: { content: "not json" } }],
+      parts: [{ type: "text", text: "not json" }],
     });
 
     // WHEN running the judge
@@ -126,7 +126,7 @@ describe("runJudge", () => {
   test("returns null for empty response content", async () => {
     // GIVEN a judge client that returns an empty content string
     const client = mockClient({
-      choices: [{ message: { content: "" } }],
+      parts: [{ type: "text", text: "" }],
     });
 
     // WHEN running the judge
@@ -151,7 +151,7 @@ describe("runJudge", () => {
     // GIVEN a judge client that returns JSON without all required fields
     const incompleteJson = { consensus: [] };
     const client = mockClient({
-      choices: [{ message: { content: JSON.stringify(incompleteJson) } }],
+      parts: [{ type: "text", text: JSON.stringify(incompleteJson) }],
     });
 
     // WHEN running the judge

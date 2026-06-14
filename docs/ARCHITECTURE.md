@@ -207,12 +207,12 @@ Each factory destructures only what it needs. Extra properties are ignored via s
 - **File**: `src/server/orchestrator.ts`
 - **Function**: `fanOut(client, sessionID, prompt, models, config, options?)`
 - **Execution**: `Promise.allSettled` over all panel models
-- **Each call**: `client.session.prompt(sessionID, { model: { providerID, modelID }, prompt })`
+- **Each call**: `client.session.prompt({ sessionID, model: { providerID, modelID }, parts: [{ type: "text", text: prompt }] })`
 - **Verbatim**: Prompt is passed exactly as received (trimmed). No lenses, roles, or personas.
 - **Timeout**: 120s default per call, configurable via `FanOutOptions.timeoutMs`
 - **Retry**: 1 retry per call with 100ms delay, configurable via `FanOutOptions.retries`
 - **Error isolation**: Each promise has its own `.catch()` returning a `PanelResult` with `error` field
-- **Tracking**: Per-model latency via `startTimes` Map, token counts from response metadata
+- **Tracking**: Per-model latency via `startTimes` Map, token counts from `response.info.tokens`
 
 ### Stage 3: Judge
 - **File**: `src/server/judge.ts`
@@ -236,9 +236,9 @@ Each factory destructures only what it needs. Extra properties are ignored via s
 
 ### Stage 5: Cost Tracking
 - **File**: `src/server/cost-tracker.ts`
-- **Per-panelist**: `costTracker.trackPanelist(modelId, promptTokens, completionTokens)`
-- **Judge**: `costTracker.trackJudge(prompt, completion)` — currently tracks 0/0 (token counts not exposed by runJudge return)
-- **Synthesis**: `costTracker.trackSynthesis(prompt, completion)` — currently tracks 0/0
+- **Per-panelist**: `costTracker.trackPanelist(modelId, promptTokens, completionTokens)` — tokens from `response.info.tokens.input` / `output`
+- **Judge**: `costTracker.trackJudge(promptTokens, completionTokens)` — currently tracks 0/0 (token counts not exposed by runJudge return)
+- **Synthesis**: `costTracker.trackSynthesis(promptTokens, completionTokens)` — currently tracks 0/0
 - **Summary**: `costTracker.getSummary()` → `{ perModel, judge, synthesis, totals, estimatedCost }`
 - **Estimation**: 3 pricing tiers: budget ($0.15/$0.60 per 1M), standard ($3/$15), premium ($15/$75)
 

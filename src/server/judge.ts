@@ -8,7 +8,13 @@ import { JUDGE_OUTPUT_SCHEMA } from "../types/schema";
 
 export interface JudgeClient {
   session: {
-    prompt: (path: string, body: Record<string, unknown>) => Promise<unknown>;
+    prompt: (params: {
+      sessionID: string;
+      model: { providerID: string; modelID: string };
+      parts: Array<{ type: string; text?: string; [key: string]: unknown }>;
+      format?: { type: string; schema?: unknown };
+      system?: string;
+    }) => Promise<unknown>;
   };
 }
 
@@ -170,24 +176,23 @@ export async function runJudge(
   const prompt = buildJudgePrompt(sanitizedResults);
 
   try {
-    const response = (await client.session.prompt(sessionID, {
+    const response = (await client.session.prompt({
+      sessionID,
       model: {
         providerID: config.judge.providerId,
         modelID: config.judge.modelId,
       },
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
+      parts: [{ type: "text", text: prompt }],
       format: {
         type: "json_schema",
         schema: JUDGE_OUTPUT_SCHEMA,
       },
-    })) as { choices?: Array<{ message?: { content?: string } }> };
+    })) as { parts?: Array<{ type?: string; text?: string }> };
 
-    const content = response?.choices?.[0]?.message?.content;
+    const content = response?.parts
+      ?.filter((p) => p.type === "text" && typeof p.text === "string")
+      .map((p) => p.text!)
+      .join("");
 
     if (!content || content.trim() === "") {
       return null;

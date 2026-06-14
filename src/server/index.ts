@@ -7,6 +7,7 @@ import {
 import { RecursionGuard } from "./recursion-guard";
 import { CostTracker } from "./cost-tracker";
 import { runFusionPipeline, type PipelineClient } from "./pipeline";
+import type { OriginalModel } from "./synthesizer";
 
 import { createChatMessageHook } from "./hooks/chat-message";
 import { createChatParamsHook } from "./hooks/chat-params";
@@ -78,6 +79,11 @@ export const FusionPlugin: Plugin = async (ctx, options?) => {
     client: ctx.client as unknown as PipelineClient,
   };
 
+  const originalModel: OriginalModel = {
+    providerId: config.judge.providerId,
+    modelId: config.judge.modelId,
+  };
+
   return {
     // -----------------------------------------------------------------------
     // chat.message — intercept incoming user messages to trigger fusion
@@ -105,7 +111,13 @@ export const FusionPlugin: Plugin = async (ctx, options?) => {
     // tool — register the fusion:deliberate tool backed by the pipeline
     // -----------------------------------------------------------------------
     tool: {
-      "fusion:deliberate": createFusionTool(runFusionPipeline),
+      "fusion:deliberate": createFusionTool({
+        pipelineFn: runFusionPipeline,
+        client: pluginState.client,
+        config,
+        recursionGuard,
+        originalModel,
+      }),
     },
 
     // -----------------------------------------------------------------------

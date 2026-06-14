@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { createSystemTransformHook } from "./system-transform";
 import type { FusionConfig } from "../../types/config";
+import type { Model } from "@opencode-ai/sdk";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -45,7 +46,7 @@ describe("createSystemTransformHook", () => {
     const output = { system: ["You are a helpful assistant."] };
 
     await hook(
-      { sessionID: "s1", model: { providerID: "openai", modelID: "gpt-4o" } },
+      { sessionID: "s1", model: { providerID: "openai", modelID: "gpt-4o" } as unknown as Model },
       output,
     );
 
@@ -63,7 +64,7 @@ describe("createSystemTransformHook", () => {
     const output = { system: ["You are a helpful assistant."] };
 
     await hook(
-      { sessionID: "s2", model: { providerID: "openai", modelID: "gpt-4o" } },
+      { sessionID: "s2", model: { providerID: "openai", modelID: "gpt-4o" } as unknown as Model },
       output,
     );
 

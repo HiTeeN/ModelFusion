@@ -2,6 +2,8 @@ import { describe, expect, test, beforeEach, mock } from "bun:test";
 import { createChatParamsHook, type ChatParamsPluginState } from "./chat-params";
 import type { FusionConfig } from "../../types/config";
 import type { RecursionGuard } from "../recursion-guard";
+import type { Model, UserMessage } from "@opencode-ai/sdk";
+import type { ProviderContext } from "@opencode-ai/plugin";
 
 // ---------------------------------------------------------------------------
 // Test fixtures
@@ -38,9 +40,9 @@ function makeInput(sessionID = "test-session"): Parameters<ReturnType<typeof cre
   return {
     sessionID,
     agent: "test-agent",
-    model: { providerID: "openai", modelID: "gpt-4o" },
-    provider: {},
-    message: {},
+    model: { providerID: "openai", modelID: "gpt-4o" } as unknown as Model,
+    provider: {} as ProviderContext,
+    message: {} as UserMessage,
   };
 }
 

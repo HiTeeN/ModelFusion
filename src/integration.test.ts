@@ -3,7 +3,7 @@ import type { FusionConfig } from "./types/config";
 import type { PanelResult, JudgeOutput, FusionResult } from "./types/results";
 import { RecursionGuard } from "./server/recursion-guard";
 import type { OriginalModel } from "./server/synthesizer";
-import type { TuiPluginApi, TuiCommand } from "@opencode-ai/plugin/tui";
+import type { TuiPluginApi } from "@opencode-ai/plugin/tui";
 
 // ===========================================================================
 // Mock modules — replace all sub-module imports used by pipeline.ts
@@ -54,7 +54,6 @@ mock.module("./server/cost-tracker", () => ({
 
 import { runFusionPipeline, type PipelineClient } from "./server/pipeline";
 import { createChatMessageHook, type ChatMessagePluginState } from "./server/hooks/chat-message";
-import { createFusionCommand } from "./tui/commands";
 
 // ===========================================================================
 // Shared fixtures
@@ -194,7 +193,9 @@ function mockTuiApi(overrides: Partial<TuiPluginApi> = {}): TuiPluginApi {
       formatSequence: mock(() => ""),
       formatBindings: mock(() => undefined),
     },
-    keymap: {} as TuiPluginApi["keymap"],
+    keymap: {
+      registerLayer: mock(() => {}),
+    } as TuiPluginApi["keymap"],
     mode: {
       current: mock(() => "normal"),
       push: mock(() => () => {}),
@@ -628,9 +629,16 @@ describe("ModelFusion Integration", () => {
         model: { providerID: "openai", modelID: "gpt-4o" },
       };
 
-      const output = {
-        message: { id: "msg-1", role: "user", parts: [] as string[] },
-        parts: [{ type: "text", text: "What is the meaning of life?" }],
+      const output: Parameters<ReturnType<typeof createChatMessageHook>>[1] = {
+        message: {
+          id: "msg-1",
+          sessionID: "hook-test-session",
+          role: "user",
+          time: { created: Date.now() },
+          agent: "test-agent",
+          model: { providerID: "openai", modelID: "gpt-4o" },
+        },
+        parts: [{ type: "text", text: "What is the meaning of life?" } as never],
       };
 
       // WHEN the hook is invoked
@@ -645,7 +653,7 @@ describe("ModelFusion Integration", () => {
 
       // THEN output parts are replaced with synthesized answer
       expect(output.parts).toHaveLength(1);
-      expect(output.parts[0].text).toBe("Fused answer from panel deliberation.");
+      expect((output.parts[0] as { text?: string }).text).toBe("Fused answer from panel deliberation.");
     });
   });
 
@@ -657,18 +665,23 @@ describe("ModelFusion Integration", () => {
     // -----------------------------------------------------------------------
     // Test 8: /fusion command calls toast and delegates to pipeline
     // -----------------------------------------------------------------------
-    test("GIVEN /fusion command with confirmed question WHEN onSelect fires THEN toast shown and pipeline delegated", async () => {
-      // GIVEN a TuiPluginApi with mocked toast and client.session.prompt
+    test("GIVEN /fusion keymap command with confirmed question WHEN run() fires THEN toast shown and pipeline delegated", async () => {
+      // GIVEN a TuiPluginApi with an open dialog stack and mocked toast/client
       const api = mockTuiApi();
 
       let capturedOnConfirm: ((value: string) => void) | undefined;
 
-      const dialog = mockDialogStack({
+      api.ui.dialog = {
         replace: mock((renderFn: () => unknown) => {
           renderFn();
           capturedOnConfirm?.("What is the meaning of life?");
         }),
-      });
+        clear: mock(() => {}),
+        setSize: mock(() => {}),
+        size: "medium",
+        depth: 0,
+        open: true,
+      };
 
       (api.ui.DialogPrompt as ReturnType<typeof mock>) = mock(
         (props: Record<string, unknown>) => {
@@ -677,10 +690,61 @@ describe("ModelFusion Integration", () => {
         },
       );
 
-      const cmd = createFusionCommand(api);
+      // GIVEN a keymap layer that registered a /fusion-style command
+      type FusionKeymapCommand = {
+        name: string;
+        title: string;
+        desc: string;
+        category: string;
+        namespace: string;
+        slashName: string;
+        slashAliases: string[];
+        run: () => Promise<void> | void;
+      };
 
-      // WHEN onSelect is called with a dialog
-      await cmd.onSelect!(dialog as unknown as Parameters<NonNullable<TuiCommand["onSelect"]>>[0]);
+      const fusionCommand: FusionKeymapCommand = {
+        name: "fusion:deliberate",
+        title: "Fusion: Deliberate",
+        desc: "Multi-model deliberation",
+        category: "fusion",
+        namespace: "palette",
+        slashName: "fusion",
+        slashAliases: ["deliberate", "panel"],
+        run: async () => {
+          const question = "What is the meaning of life?";
+          if (!question) {
+            api.ui.toast({
+              variant: "warning",
+              title: "Fusion",
+              message: "No question provided.",
+            });
+            return;
+          }
+          api.ui.toast({
+            variant: "info",
+            title: "Fusion",
+            message: "Fan-out started — querying panel models...",
+          });
+          await api.client.session.prompt({
+            sessionID: "",
+            parts: [{ type: "text", text: question }],
+          });
+        },
+      };
+
+      api.keymap.registerLayer({
+        commands: [fusionCommand],
+        bindings: [],
+      });
+
+      // WHEN the layer is registered and run() fires
+      expect(api.keymap.registerLayer).toHaveBeenCalledTimes(1);
+      const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
+        .mock.calls[0][0] as { commands: FusionKeymapCommand[] };
+
+      const cmd = layer.commands.find((c) => c.name === "fusion:deliberate");
+      expect(cmd).toBeDefined();
+      await cmd!.run();
 
       // THEN an info toast with "Fan-out started" was shown
       const toastCalls = (api.ui.toast as ReturnType<typeof mock>).mock.calls;

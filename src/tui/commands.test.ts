@@ -1,6 +1,6 @@
 import { describe, expect, test, mock } from "bun:test";
 import { createFusionCommand } from "./commands";
-import type { TuiPluginApi, TuiCommand } from "@opencode-ai/plugin/tui";
+import type { TuiPluginApi } from "@opencode-ai/plugin/tui";
 
 function mockApi(overrides: Partial<TuiPluginApi> = {}): TuiPluginApi {
   const store = new Map<string, unknown>();
@@ -25,7 +25,9 @@ function mockApi(overrides: Partial<TuiPluginApi> = {}): TuiPluginApi {
       formatSequence: mock(() => ""),
       formatBindings: mock(() => undefined),
     },
-    keymap: {} as TuiPluginApi["keymap"],
+    keymap: {
+      registerLayer: mock(() => {}),
+    } as TuiPluginApi["keymap"],
     mode: {
       current: mock(() => "normal"),
       push: mock(() => () => {}),
@@ -91,7 +93,7 @@ function mockApi(overrides: Partial<TuiPluginApi> = {}): TuiPluginApi {
   } as TuiPluginApi;
 }
 
-function mockDialogStack(
+function openDialogStack(
   overrides: Partial<TuiPluginApi["ui"]["dialog"]> = {},
 ): TuiPluginApi["ui"]["dialog"] {
   return {
@@ -108,39 +110,40 @@ function mockDialogStack(
 describe("createFusionCommand", () => {
   // GIVEN a TuiPluginApi instance
   // WHEN createFusionCommand is called
-  // THEN it returns a TuiCommand with correct metadata
-  test("command has correct metadata", () => {
+  // THEN it returns a keymap command with correct metadata
+  test("command has correct keymap metadata", () => {
     const api = mockApi();
     const cmd = createFusionCommand(api);
 
-    expect(cmd.title).toBe("fusion");
-    expect(cmd.value).toBe("fusion");
-    expect(cmd.description).toContain("Multi-model deliberation");
-    expect(cmd.description).toContain("panel of models");
-    expect(cmd.description).toContain("judge");
-    expect(cmd.description).toContain("structured analysis");
-    expect(cmd.category).toBe("analysis");
-    expect(cmd.slash).toBeDefined();
-    expect(cmd.slash!.name).toBe("fusion");
-    expect(cmd.slash!.aliases).toContain("deliberate");
-    expect(cmd.slash!.aliases).toContain("panel");
-    expect(typeof cmd.onSelect).toBe("function");
+    expect(cmd.name).toBe("fusion:deliberate");
+    expect(cmd.title).toBe("Fusion: Deliberate");
+    expect(cmd.desc).toContain("Multi-model deliberation");
+    expect(cmd.desc).toContain("panel of models");
+    expect(cmd.desc).toContain("judge");
+    expect(cmd.desc).toContain("structured analysis");
+    expect(cmd.category).toBe("fusion");
+    expect(cmd.namespace).toBe("palette");
+    expect(cmd.slashName).toBe("fusion");
+    expect(cmd.slashAliases).toContain("deliberate");
+    expect(cmd.slashAliases).toContain("panel");
+    expect(typeof cmd.run).toBe("function");
   });
 
-  // GIVEN a command with a dialog stack
-  // WHEN onSelect is called and the user confirms a question
+  // GIVEN a command with an open dialog stack
+  // WHEN run() is called and the user confirms a question
   // THEN progress toasts are shown and pipeline is delegated
-  test("onSelect shows progress toasts and delegates to pipeline", async () => {
+  test("run() shows progress toasts and delegates to pipeline", async () => {
     const api = mockApi();
 
     let capturedOnConfirm: ((value: string) => void) | undefined;
 
-    const dialog = mockDialogStack({
+    const dialog = openDialogStack({
       replace: mock((renderFn: () => unknown) => {
         renderFn();
         capturedOnConfirm?.("What is the meaning of life?");
       }),
     });
+    api.ui.dialog = dialog;
 
     (api.ui.DialogPrompt as ReturnType<typeof mock>) = mock(
       (props: Record<string, unknown>) => {
@@ -151,7 +154,7 @@ describe("createFusionCommand", () => {
 
     const cmd = createFusionCommand(api);
 
-    await cmd.onSelect!(dialog as unknown as Parameters<NonNullable<TuiCommand["onSelect"]>>[0]);
+    await cmd.run();
 
     const toastCalls = (api.ui.toast as ReturnType<typeof mock>).mock.calls;
 
@@ -167,14 +170,16 @@ describe("createFusionCommand", () => {
     expect(api.client.session.prompt).toHaveBeenCalled();
   });
 
-  // GIVEN a command invoked without a dialog (no question provided)
-  // WHEN onSelect is called
+  // GIVEN a command with a closed dialog stack (no question path)
+  // WHEN run() is called
   // THEN a warning toast is shown and no pipeline delegation occurs
-  test("onSelect handles empty arguments gracefully", async () => {
+  test("run() handles closed dialog stack gracefully", async () => {
     const api = mockApi();
+    api.ui.dialog = openDialogStack({ open: false });
+
     const cmd = createFusionCommand(api);
 
-    await cmd.onSelect!(undefined);
+    await cmd.run();
 
     const toastCalls = (api.ui.toast as ReturnType<typeof mock>).mock.calls;
     expect(toastCalls.length).toBeGreaterThanOrEqual(1);
@@ -192,19 +197,20 @@ describe("createFusionCommand", () => {
   });
 
   // GIVEN a command invoked with a dialog where the user cancels
-  // WHEN onSelect is called and the dialog is cancelled
+  // WHEN run() is called and the dialog is cancelled
   // THEN a warning toast is shown and no pipeline delegation occurs
-  test("onSelect handles dialog cancellation gracefully", async () => {
+  test("run() handles dialog cancellation gracefully", async () => {
     const api = mockApi();
 
     let capturedOnCancel: (() => void) | undefined;
 
-    const dialog = mockDialogStack({
+    const dialog = openDialogStack({
       replace: mock((renderFn: () => unknown) => {
         renderFn();
         capturedOnCancel?.();
       }),
     });
+    api.ui.dialog = dialog;
 
     (api.ui.DialogPrompt as ReturnType<typeof mock>) = mock(
       (props: Record<string, unknown>) => {
@@ -215,7 +221,7 @@ describe("createFusionCommand", () => {
 
     const cmd = createFusionCommand(api);
 
-    await cmd.onSelect!(dialog as unknown as Parameters<NonNullable<TuiCommand["onSelect"]>>[0]);
+    await cmd.run();
 
     const toastCalls = (api.ui.toast as ReturnType<typeof mock>).mock.calls;
 
@@ -228,5 +234,26 @@ describe("createFusionCommand", () => {
     );
 
     expect(api.client.session.prompt).not.toHaveBeenCalled();
+  });
+
+  // GIVEN the new keymap command
+  // WHEN the command is registered via api.keymap.registerLayer
+  // THEN it integrates with the layer registration shape
+  test("command integrates with api.keymap.registerLayer shape", () => {
+    const api = mockApi();
+    const cmd = createFusionCommand(api);
+
+    api.keymap.registerLayer({
+      commands: [cmd],
+      bindings: [],
+    });
+
+    expect(api.keymap.registerLayer).toHaveBeenCalledTimes(1);
+    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
+      .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
+
+    expect(layer.commands).toHaveLength(1);
+    expect(layer.commands[0].name).toBe("fusion:deliberate");
+    expect(layer.commands[0].slashName).toBe("fusion");
   });
 });

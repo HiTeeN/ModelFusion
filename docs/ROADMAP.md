@@ -8,6 +8,14 @@ Current state, planned improvements, and long-term vision for the ModelFusion pl
 
 **Status**: Complete. 162 tests, 624 expect() calls, all passing.
 
+**v1.17.6 API Migration**: All source code and documentation have been migrated to the OpenCode v1.17.6 API. Key changes:
+- `session.prompt()` now uses a single params object with `sessionID`, `model`, and `parts` (instead of two arguments with `prompt` string)
+- Response shape changed from `choices[0].message.content` to `parts.filter(p => p.type === "text")`
+- Token counting changed from `usage.prompt_tokens` to `info.tokens.input` / `output`
+- Tool registration uses `tool()` from `@opencode-ai/plugin/tool` with `tool.schema.string()`
+- TUI commands use `api.keymap.registerLayer` instead of `api.command`
+- All hook signatures updated to match v1.17.6 types (`UserMessage`, `Part`, `Model`, `ProviderContext`)
+
 ### Features
 
 - Core fusion pipeline: fan-out to panel models, judge comparison, synthesis

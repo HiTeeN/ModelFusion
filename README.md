@@ -37,6 +37,8 @@ Each step streams back to the chat, so you see the deliberation unfold in real t
 
 ## Installation
 
+Requires OpenCode **1.17.7 or later** (uses the v1.17.6+ API with `parts`-based messaging and `tool()` registration).
+
 1. Add the package to your OpenCode project:
 
 ```bash
@@ -51,7 +53,7 @@ bun add @modelfusion/plugin
 }
 ```
 
-3. Restart OpenCode. The `/fusion` command should now be available in the TUI, and the `fusion:deliberate` tool will be registered with the server plugin.
+3. Restart OpenCode. The `/fusion` command should now be available in the TUI via `api.keymap.registerLayer`, and the `fusion:deliberate` tool will be registered with the server plugin using the `tool()` API.
 
 ### Server Plugin
 
@@ -79,7 +81,13 @@ The server plugin (`@modelfusion/plugin/server`) registers the deliberation tool
 
 ### TUI Plugin
 
-The TUI plugin (`@modelfusion/plugin/tui`) is loaded automatically alongside the server plugin. It registers the `/fusion` slash command and `/deliberate` and `/panel` aliases. No additional config needed.
+The TUI plugin (`@modelfusion/plugin/tui`) is loaded automatically alongside the server plugin. It registers the `/fusion` slash command and `/deliberate` and `/panel` aliases via `api.keymap.registerLayer`. No additional config needed.
+
+### Version Compatibility
+
+| ModelFusion | OpenCode | API |
+|---|---|---|
+| 0.1.0+ | 1.17.7+ | v1.17.6 (`parts`-based messaging, `tool()` API, `keymap.registerLayer`) |
 
 ## Configuration Reference
 
