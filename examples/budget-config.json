@@ -1,0 +1,18 @@
+{
+  "panel": {
+    "models": [
+      { "providerId": "openai", "modelId": "gpt-4o-mini" },
+      { "providerId": "google", "modelId": "gemini-1.5-flash" },
+      { "providerId": "openai", "modelId": "gpt-4o-mini" }
+    ],
+    "maxModels": 3
+  },
+  "judge": {
+    "providerId": "openai",
+    "modelId": "gpt-4o-mini"
+  },
+  "triggering": "manual",
+  "maxToolCalls": 4,
+  "temperature": 0.5,
+  "enabled": true
+}

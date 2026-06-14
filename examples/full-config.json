@@ -1,0 +1,22 @@
+{
+  "panel": {
+    "models": [
+      { "providerId": "openai", "modelId": "gpt-4o-mini" },
+      { "providerId": "anthropic", "modelId": "claude-3-haiku" },
+      { "providerId": "google", "modelId": "gemini-1.5-flash" }
+    ],
+    "maxModels": 8
+  },
+  "judge": {
+    "providerId": "openai",
+    "modelId": "gpt-4o"
+  },
+  "triggering": "auto",
+  "threshold": {
+    "minPromptLength": 200,
+    "keywords": ["compare", "debate", "analyze", "decide", "choose"]
+  },
+  "maxToolCalls": 12,
+  "temperature": 0.8,
+  "enabled": true
+}

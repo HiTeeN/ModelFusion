@@ -1,0 +1,445 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - heading "Collapse file tree" [level=2] [ref=e6]:
+            - button "Collapse file tree" [expanded] [active] [ref=e7] [cursor=pointer]:
+              - img [ref=e8]
+            - generic [ref=e11]: Collapse file tree
+          - heading "Files" [level=2] [ref=e12]
+        - generic [ref=e13]:
+          - button "main branch" [ref=e15] [cursor=pointer]:
+            - generic [ref=e16]:
+              - generic [ref=e18]:
+                - img [ref=e20]
+                - generic [ref=e23]: main
+              - generic:
+                - img
+          - button "Search this repository (forward slash)" [ref=e25] [cursor=pointer]:
+            - img [ref=e26]
+      - generic [ref=e29]:
+        - img [ref=e31]
+        - combobox "Go to file" [ref=e33]
+      - navigation "File Tree Navigation" [ref=e39]:
+        - tree "Files" [ref=e41]:
+          - treeitem "commands" [level=1] [ref=e42]:
+            - generic [ref=e43] [cursor=pointer]:
+              - img [ref=e45]
+              - generic [ref=e47]:
+                - img [ref=e51]
+                - generic [ref=e53]: commands
+          - treeitem "skills/fusion" [expanded] [level=1] [ref=e54]:
+            - generic [ref=e55] [cursor=pointer]:
+              - img [ref=e57]
+              - generic [ref=e59]:
+                - img [ref=e63]
+                - generic [ref=e66]: skills/fusion
+            - group "skills/fusion" [ref=e67]:
+              - treeitem "references" [level=2] [ref=e68]:
+                - generic [ref=e69] [cursor=pointer]:
+                  - img [ref=e74]
+                  - generic [ref=e76]:
+                    - img [ref=e80]
+                    - generic [ref=e82]: references
+              - treeitem "scripts" [level=2] [ref=e83]:
+                - generic [ref=e84] [cursor=pointer]:
+                  - img [ref=e89]
+                  - generic [ref=e91]:
+                    - img [ref=e95]
+                    - generic [ref=e97]: scripts
+              - treeitem "SKILL.md" [level=2] [ref=e98]:
+                - generic [ref=e103] [cursor=pointer]:
+                  - img [ref=e106]
+                  - generic [ref=e108]: SKILL.md
+          - treeitem ".gitignore" [level=1] [ref=e109]:
+            - generic [ref=e111] [cursor=pointer]:
+              - img [ref=e114]
+              - generic [ref=e116]: .gitignore
+          - treeitem "CLAUDE.md" [level=1] [ref=e117]:
+            - generic [ref=e119] [cursor=pointer]:
+              - img [ref=e122]
+              - generic [ref=e124]: CLAUDE.md
+          - treeitem "LICENSE" [level=1] [ref=e125]:
+            - generic [ref=e127] [cursor=pointer]:
+              - img [ref=e130]
+              - generic [ref=e132]: LICENSE
+          - treeitem "README.md" [level=1] [ref=e133]:
+            - generic [ref=e135] [cursor=pointer]:
+              - img [ref=e138]
+              - generic [ref=e140]: README.md
+          - treeitem "install.sh" [level=1] [ref=e141]:
+            - generic [ref=e143] [cursor=pointer]:
+              - img [ref=e146]
+              - generic [ref=e148]: install.sh
+    - generic [ref=e149]:
+      - link "Skip to content" [ref=e150] [cursor=pointer]:
+        - /url: "#start-of-content"
+      - banner [ref=e152]:
+        - heading "Navigation Menu" [level=2] [ref=e153]
+        - generic [ref=e154]:
+          - link "Homepage" [ref=e156] [cursor=pointer]:
+            - /url: /
+            - img [ref=e157]
+          - generic [ref=e159]:
+            - navigation "Global" [ref=e162]:
+              - list [ref=e163]:
+                - listitem [ref=e164]:
+                  - button "Platform" [ref=e166] [cursor=pointer]:
+                    - text: Platform
+                    - img [ref=e167]
+                - listitem [ref=e169]:
+                  - button "Solutions" [ref=e171] [cursor=pointer]:
+                    - text: Solutions
+                    - img [ref=e172]
+                - listitem [ref=e174]:
+                  - button "Resources" [ref=e176] [cursor=pointer]:
+                    - text: Resources
+                    - img [ref=e177]
+                - listitem [ref=e179]:
+                  - button "Open Source" [ref=e181] [cursor=pointer]:
+                    - text: Open Source
+                    - img [ref=e182]
+                - listitem [ref=e184]:
+                  - button "Enterprise" [ref=e186] [cursor=pointer]:
+                    - text: Enterprise
+                    - img [ref=e187]
+                - listitem [ref=e189]:
+                  - link "Pricing" [ref=e190] [cursor=pointer]:
+                    - /url: https://github.com/pricing
+                    - generic [ref=e191]: Pricing
+            - generic [ref=e192]:
+              - button "Search or jump to…" [ref=e195] [cursor=pointer]:
+                - img [ref=e197]
+              - link "Sign in" [ref=e200] [cursor=pointer]:
+                - /url: /login?return_to=https%3A%2F%2Fgithub.com%2Fduolahypercho%2Ffusion-fable%2Fblob%2Fmain%2Fskills%2Ffusion%2FSKILL.md
+              - link "Sign up" [ref=e201] [cursor=pointer]:
+                - /url: /signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E%2Fblob%2Fshow&source=header-repo&source_repo=duolahypercho%2Ffusion-fable
+              - button "Appearance settings" [ref=e204] [cursor=pointer]:
+                - img
+    - main [ref=e208]:
+      - generic [ref=e209]:
+        - generic [ref=e210]:
+          - generic [ref=e212]:
+            - img [ref=e213]
+            - link "duolahypercho" [ref=e216] [cursor=pointer]:
+              - /url: /duolahypercho
+            - generic [ref=e217]: /
+            - strong [ref=e218]:
+              - link "fusion-fable" [ref=e219] [cursor=pointer]:
+                - /url: /duolahypercho/fusion-fable
+            - generic [ref=e220]: Public
+          - generic [ref=e221]:
+            - list:
+              - listitem [ref=e222]:
+                - link "You must be signed in to change notification settings" [ref=e223] [cursor=pointer]:
+                  - /url: /login?return_to=%2Fduolahypercho%2Ffusion-fable
+                  - img [ref=e224]
+                  - text: Notifications
+              - listitem [ref=e226]:
+                - link "Fork 13" [ref=e227] [cursor=pointer]:
+                  - /url: /login?return_to=%2Fduolahypercho%2Ffusion-fable
+                  - img [ref=e228]
+                  - text: Fork
+                  - generic "13" [ref=e230]
+              - listitem [ref=e231]:
+                - link "You must be signed in to star a repository" [ref=e233] [cursor=pointer]:
+                  - /url: /login?return_to=%2Fduolahypercho%2Ffusion-fable
+                  - img [ref=e234]
+                  - text: Star
+                  - generic "99 users starred this repository" [ref=e236]: "99"
+        - navigation "Repository" [ref=e237]:
+          - list [ref=e238]:
+            - listitem [ref=e239]:
+              - link "Code" [ref=e240] [cursor=pointer]:
+                - /url: /duolahypercho/fusion-fable
+                - img [ref=e241]
+                - generic [ref=e243]: Code
+            - listitem [ref=e244]:
+              - link "Issues" [ref=e245] [cursor=pointer]:
+                - /url: /duolahypercho/fusion-fable/issues
+                - img [ref=e246]
+                - generic [ref=e249]: Issues
+            - listitem [ref=e250]:
+              - link "Pull requests" [ref=e251] [cursor=pointer]:
+                - /url: /duolahypercho/fusion-fable/pulls
+                - img [ref=e252]
+                - generic [ref=e254]: Pull requests
+            - listitem [ref=e255]:
+              - link "Actions" [ref=e256] [cursor=pointer]:
+                - /url: /duolahypercho/fusion-fable/actions
+                - img [ref=e257]
+                - generic [ref=e259]: Actions
+            - listitem [ref=e260]:
+              - link "Projects" [ref=e261] [cursor=pointer]:
+                - /url: /duolahypercho/fusion-fable/projects
+                - img [ref=e262]
+                - generic [ref=e264]: Projects
+            - listitem [ref=e265]:
+              - link "Security and quality" [ref=e266] [cursor=pointer]:
+                - /url: /duolahypercho/fusion-fable/security
+                - img [ref=e267]
+                - generic [ref=e269]: Security and quality
+            - listitem [ref=e270]:
+              - link "Insights" [ref=e271] [cursor=pointer]:
+                - /url: /duolahypercho/fusion-fable/pulse
+                - img [ref=e272]
+                - generic [ref=e274]: Insights
+      - generic [ref=e285]:
+        - generic [ref=e289]:
+          - generic [ref=e291]:
+            - navigation "Breadcrumbs" [ref=e292]:
+              - heading "Breadcrumbs" [level=2] [ref=e293]
+              - list [ref=e294]:
+                - listitem [ref=e295]:
+                  - link "fusion-fable" [ref=e296] [cursor=pointer]:
+                    - /url: /duolahypercho/fusion-fable/tree/main
+                - listitem [ref=e297]:
+                  - text: /
+                  - link "skills" [ref=e298] [cursor=pointer]:
+                    - /url: /duolahypercho/fusion-fable/tree/main/skills
+                - listitem [ref=e299]:
+                  - text: /
+                  - link "fusion" [ref=e300] [cursor=pointer]:
+                    - /url: /duolahypercho/fusion-fable/tree/main/skills/fusion
+            - generic [ref=e301]:
+              - text: /
+              - heading "SKILL.md" [level=1] [ref=e302]
+            - button "Copy path" [ref=e303] [cursor=pointer]:
+              - img [ref=e304]
+          - button "More file actions" [ref=e310] [cursor=pointer]:
+            - img [ref=e311]
+        - generic [ref=e313]:
+          - generic [ref=e315]:
+            - heading "Latest commit" [level=2] [ref=e316]
+            - generic [ref=e319]:
+              - heading "History" [level=2] [ref=e320]
+              - link "History" [ref=e321] [cursor=pointer]:
+                - /url: /duolahypercho/fusion-fable/commits/main/skills/fusion/SKILL.md
+                - generic [ref=e322]:
+                  - generic:
+                    - img
+                  - generic [ref=e323]: History
+          - generic [ref=e325]:
+            - generic [ref=e327]:
+              - heading "File metadata and controls" [level=2] [ref=e328]
+              - list "File view" [ref=e330]:
+                - listitem [ref=e331]:
+                  - button "Preview" [ref=e332] [cursor=pointer]:
+                    - generic [ref=e334]: Preview
+                - listitem [ref=e335]:
+                  - button "Code" [ref=e336] [cursor=pointer]:
+                    - generic [ref=e338]: Code
+                - listitem [ref=e339]:
+                  - button "Blame" [ref=e340] [cursor=pointer]:
+                    - generic [ref=e342]: Blame
+              - generic [ref=e343]:
+                - generic [ref=e345]:
+                  - link "Raw" [ref=e347] [cursor=pointer]:
+                    - /url: https://github.com/duolahypercho/fusion-fable/raw/refs/heads/main/skills/fusion/SKILL.md
+                    - generic [ref=e349]: Raw
+                  - button "Copy raw file" [ref=e351] [cursor=pointer]:
+                    - img [ref=e352]
+                  - button "Download raw file" [ref=e356] [cursor=pointer]:
+                    - img [ref=e357]
+                - button "Outline" [ref=e360] [cursor=pointer]:
+                  - img [ref=e361]
+            - region "SKILL.md" [ref=e364]:
+              - article [ref=e366]:
+                - table [ref=e368]:
+                  - rowgroup [ref=e369]:
+                    - row "name fusion" [ref=e370]:
+                      - rowheader "name" [ref=e371]
+                      - cell "fusion" [ref=e372]
+                    - row [ref=e373]:
+                      - rowheader "description" [ref=e374]
+                      - cell [ref=e375]
+                - generic [ref=e376]:
+                  - heading "Fusion" [level=1] [ref=e377]
+                  - 'link "Permalink: Fusion" [ref=e378] [cursor=pointer]':
+                    - /url: "#fusion"
+                    - img [ref=e379]
+                - paragraph [ref=e381]:
+                  - text: Fusion turns one prompt into a panel. The question goes to several models
+                  - strong [ref=e382]: at the same time
+                  - text: ", each answering independently — with web search and bash, and with no knowledge of the others. Then Opus 4.8 reads every answer, extracts the structure of the panel's reasoning (what they agree on, where they conflict, what only one saw, what they all missed), and writes a final answer grounded in that analysis."
+                - paragraph [ref=e383]:
+                  - text: The whole mechanism is
+                  - strong [ref=e384]: independence, then synthesis
+                  - text: ". The diversity that makes a panel beat a single model is harvested, not manufactured: running the same prompt independently yields different reasoning paths, tool calls, and sources — even two cold runs of the"
+                  - emphasis [ref=e385]: same
+                  - text: model diverge enough that synthesizing them beats running it once. So there are no assigned "lenses" or personas; every panelist gets the user's task verbatim and answers it straight. (See
+                  - code [ref=e386]: references/panel.md
+                  - text: .)
+                - paragraph [ref=e387]:
+                  - strong [ref=e388]: "One hard rule: Opus 4.8 always judges and writes the final answer — the pipeline can't be reversed."
+                  - text: The panelist models can't call back out to spawn Opus, so Opus is always the driver. The slug reads driver-first for that reason.
+                - generic [ref=e389]:
+                  - heading "Step 0 — Pick the panel" [level=2] [ref=e390]
+                  - 'link "Permalink: Step 0 — Pick the panel" [ref=e391] [cursor=pointer]':
+                    - /url: "#step-0--pick-the-panel"
+                    - img [ref=e392]
+                - generic [ref=e394]:
+                  - generic [ref=e395]: bash <skill_dir>/scripts/detect_panel.sh
+                  - button "Copy code to clipboard" [ref=e397] [cursor=pointer]:
+                    - img [ref=e398]
+                - paragraph [ref=e401]:
+                  - text: It prints a
+                  - code [ref=e402]: SLUG=
+                  - text: "line recommending the richest panel possible on this machine:"
+                - table [ref=e404]:
+                  - rowgroup [ref=e405]:
+                    - row "Slug Panel Requires" [ref=e406]:
+                      - columnheader "Slug" [ref=e407]
+                      - columnheader "Panel" [ref=e408]
+                      - columnheader "Requires" [ref=e409]
+                  - rowgroup [ref=e410]:
+                    - row "opus4.8-4.8 the same prompt run twice as 2 independent Opus 4.8 panelists nothing — always available" [ref=e411]:
+                      - cell "opus4.8-4.8" [ref=e412]:
+                        - code [ref=e413]: opus4.8-4.8
+                      - cell "the same prompt run twice as 2 independent Opus 4.8 panelists" [ref=e414]
+                      - cell "nothing — always available" [ref=e415]
+                    - row "opus4.8-gpt5.5 Opus 4.8 + GPT-5.5 in parallel codex CLI" [ref=e416]:
+                      - cell "opus4.8-gpt5.5" [ref=e417]:
+                        - code [ref=e418]: opus4.8-gpt5.5
+                      - cell "Opus 4.8 + GPT-5.5 in parallel" [ref=e419]
+                      - cell "codex CLI" [ref=e420]:
+                        - code [ref=e421]: codex
+                        - text: CLI
+                    - row "opus4.8-gpt5.5-gemini3.1pro Opus 4.8 + GPT-5.5 + Gemini 3.1 Pro in parallel codex + gemini CLIs" [ref=e422]:
+                      - cell "opus4.8-gpt5.5-gemini3.1pro" [ref=e423]:
+                        - code [ref=e424]: opus4.8-gpt5.5-gemini3.1pro
+                      - cell "Opus 4.8 + GPT-5.5 + Gemini 3.1 Pro in parallel" [ref=e425]
+                      - cell "codex + gemini CLIs" [ref=e426]:
+                        - code [ref=e427]: codex
+                        - text: +
+                        - code [ref=e428]: gemini
+                        - text: CLIs
+                - paragraph [ref=e429]: If the user named a slug, honor it — but if a required CLI is missing, say so, drop that panelist, and fall back to the next-richest panel rather than failing. Otherwise use the detector's recommendation.
+                - generic [ref=e430]:
+                  - heading "Step 1 — Fan out, in parallel and blind" [level=2] [ref=e431]
+                  - 'link "Permalink: Step 1 — Fan out, in parallel and blind" [ref=e432] [cursor=pointer]':
+                    - /url: "#step-1--fan-out-in-parallel-and-blind"
+                    - img [ref=e433]
+                - paragraph [ref=e435]:
+                  - text: Read
+                  - code [ref=e436]: references/panel.md
+                  - text: . Build each panelist's prompt as the user's task
+                  - strong [ref=e437]: verbatim
+                  - text: plus the short instruction to research with web + bash and return a complete, self-contained answer as one of several independent experts who won't see the others' work. Do not assign lenses; do not pre-digest the task.
+                - paragraph [ref=e438]:
+                  - text: Launch
+                  - strong [ref=e439]: all panelists in a single turn
+                  - text: "so they run concurrently:"
+                - list [ref=e440]:
+                  - listitem [ref=e441]:
+                    - strong [ref=e442]: Opus 4.8 panelist(s)
+                    - text: → the
+                    - code [ref=e443]: Agent
+                    - text: tool,
+                    - code [ref=e444]: "subagent_type: general-purpose"
+                    - text: (web + bash built in). For
+                    - code [ref=e445]: opus4.8-4.8
+                    - text: ", spawn"
+                    - strong [ref=e446]: two
+                    - text: independent Opus subagents with the
+                    - emphasis [ref=e447]: same
+                    - text: prompt — two cold runs. Spawn them in the same message so they run at once; each returned answer is one panel response.
+                  - listitem [ref=e448]:
+                    - strong [ref=e449]: GPT-5.5 panelist
+                    - text: "→ write its prompt to a temp file and run in the background:"
+                    - generic [ref=e450]:
+                      - generic [ref=e451]: bash <skill_dir>/scripts/run_codex.sh /tmp/fusion_codex_prompt.txt /tmp/fusion_codex_out.md medium
+                      - button "Copy code to clipboard" [ref=e453] [cursor=pointer]:
+                        - img [ref=e454]
+                    - code [ref=e457]: "-o"
+                    - text: makes codex write only its final answer to the out file; read it once it finishes.
+                  - listitem [ref=e458]:
+                    - strong [ref=e459]: Gemini panelist
+                    - text: →
+                    - code [ref=e460]: bash <skill_dir>/scripts/run_gemini.sh /tmp/fusion_gemini_prompt.txt /tmp/fusion_gemini_out.md
+                    - text: . Exit 127 means the CLI isn't installed — drop Gemini and note the panel downgraded.
+                - paragraph [ref=e461]:
+                  - text: "Keep panelists isolated: never paste one panelist's output into another's prompt. The orchestrator (you) is the judge and must stay separate from the panelists — for"
+                  - code [ref=e462]: opus4.8-4.8
+                  - text: ", both panelists are spawned subagents, not you, so your synthesis reads all answers fresh."
+                - generic [ref=e463]:
+                  - heading "Step 2 — Judge (pick the track that fits the task)" [level=2] [ref=e464]
+                  - 'link "Permalink: Step 2 — Judge (pick the track that fits the task)" [ref=e465] [cursor=pointer]':
+                    - /url: "#step-2--judge-pick-the-track-that-fits-the-task"
+                    - img [ref=e466]
+                - paragraph [ref=e468]:
+                  - text: Once every panelist has returned, read
+                  - code [ref=e469]: references/judge_rubric.md
+                  - text: and
+                  - strong [ref=e470]: classify the deliverable first
+                  - text: ", because code and prose merge completely differently:"
+                - list [ref=e471]:
+                  - listitem [ref=e472]:
+                    - strong [ref=e473]: Artifact task
+                    - text: (code, script, config, Minecraft mod/datapack, schema — the user wants a buildable thing) →
+                    - strong [ref=e474]: "Track A: run both, then merge"
+                    - text: . You are integrating two
+                    - emphasis [ref=e475]: implementations
+                    - text: into one working program, not writing a report.
+                    - strong [ref=e476]: Run each candidate with bash first
+                    - text: to see what actually works and what breaks in each, decide what to keep based on observed behavior (not on which looks better), graft the parts that worked onto the stronger base, then
+                    - strong [ref=e477]: run the merged result and fix until it passes
+                    - text: . The panel's value here is that two independent attempts expose each other's bugs — running both is how you find which one is actually right, so the merge ends up
+                    - strong [ref=e478]: more correct than either input
+                    - text: . (If it truly can't be executed here — needs the live game or an unavailable toolchain — fall back to seam-reasoning and mark it unverified.)
+                  - listitem [ref=e479]:
+                    - strong [ref=e480]: Research / analysis task
+                    - text: (the user wants understanding or a recommendation) →
+                    - strong [ref=e481]: "Track B: structured synthesis"
+                    - text: "— the five sections:"
+                    - strong [ref=e482]: Consensus
+                    - text: ","
+                    - strong [ref=e483]: Contradictions
+                    - text: ","
+                    - strong [ref=e484]: Partial coverage
+                    - text: ","
+                    - strong [ref=e485]: Unique insights
+                    - text: ","
+                    - strong [ref=e486]: Blind spots
+                    - text: . Don't average or smooth over conflict; independent agreement is your highest-confidence signal, honest disagreement is the most useful thing the panel produces.
+                - paragraph [ref=e487]:
+                  - text: "Either way: attribute decisions to each panelist (by model / run), and weight a panelist that actually ran the code or read a primary source over one reasoning from memory. If a panelist failed or was dropped, the judge treats it as"
+                  - strong [ref=e488]: absent
+                  - text: — never as silent agreement.
+                - generic [ref=e489]:
+                  - heading "Step 3 — Final deliverable" [level=2] [ref=e490]
+                  - 'link "Permalink: Step 3 — Final deliverable" [ref=e491] [cursor=pointer]':
+                    - /url: "#step-3--final-deliverable"
+                    - img [ref=e492]
+                - list [ref=e494]:
+                  - listitem [ref=e495]:
+                    - strong [ref=e496]: "Track A (code/artifact):"
+                    - text: emit the complete, merged artifact — every file, ready to run as-is, not a diff or "take A's X and B's Y." Per
+                    - code [ref=e497]: judge_rubric.md
+                    - text: ", you got here by"
+                    - strong [ref=e498]: running both candidates
+                    - text: and keeping what worked, and you
+                    - strong [ref=e499]: run the merged result and fix it until it passes
+                    - text: "before presenting. Follow with a tight merge rationale: what each candidate did when run, what you took from each, and what you verified."
+                  - listitem [ref=e500]:
+                    - strong [ref=e501]: "Track B (research):"
+                    - text: write the answer grounded in the structured analysis — lead with high-confidence consensus, fold in unique insights, flag what stays uncertain. It must follow
+                    - emphasis [ref=e502]: from
+                    - text: the synthesis, not be one panelist's answer lightly edited.
+                - generic [ref=e503]:
+                  - heading "Step 4 — Present" [level=2] [ref=e504]
+                  - 'link "Permalink: Step 4 — Present" [ref=e505] [cursor=pointer]':
+                    - /url: "#step-4--present"
+                    - img [ref=e506]
+                - paragraph [ref=e508]:
+                  - text: Lead with the
+                  - strong [ref=e509]: final deliverable
+                  - text: "— the merged working artifact (Track A) or the grounded answer (Track B) — then the audit trail beneath it: for code, what each candidate did when run + the merge rationale + what you verified; for research, the five-section analysis. Name the panel slug you ran and which panelists participated. If the panel downgraded because a CLI was missing, say so and how to enable the fuller panel (install the missing CLI)."
+                - generic [ref=e510]:
+                  - heading "Cost & latency note" [level=2] [ref=e511]
+                  - 'link "Permalink: Cost & latency note" [ref=e512] [cursor=pointer]':
+                    - /url: "#cost--latency-note"
+                    - img [ref=e513]
+                - paragraph [ref=e515]: "A panel costs roughly N× a single answer in tokens and runs as slow as its slowest panelist. That's the deliberate trade: you spend more to stop being confidently wrong where that's expensive. For quick or low-stakes questions, a single direct answer is the right call — don't reach for Fusion when one model would obviously do."
+  - alert [ref=e519]

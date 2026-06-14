@@ -1,0 +1,126 @@
+import type { Plugin } from "@opencode-ai/plugin";
+import {
+  FusionConfigSchema,
+  DEFAULT_FUSION_CONFIG,
+  type FusionConfig,
+} from "../types/config";
+import { RecursionGuard } from "./recursion-guard";
+import { CostTracker } from "./cost-tracker";
+import { runFusionPipeline, type PipelineClient } from "./pipeline";
+
+import { createChatMessageHook } from "./hooks/chat-message";
+import { createChatParamsHook } from "./hooks/chat-params";
+import { createMessagesTransformHook } from "./hooks/messages-transform";
+import { createSystemTransformHook } from "./hooks/system-transform";
+import { createFusionTool } from "./hooks/tool-registration";
+import {
+  createToolExecuteBeforeHook,
+  createToolExecuteAfterHook,
+} from "./hooks/tool-execute";
+import { createEventHook } from "./hooks/event";
+
+// ---------------------------------------------------------------------------
+// FusionPlugin — main plugin entry point
+// ---------------------------------------------------------------------------
+
+/**
+ * Creates a ModelFusion plugin instance that enables multi-model deliberation
+ * in OpenCode. When installed, the plugin registers the `fusion:deliberate`
+ * tool and several lifecycle hooks that orchestrate panel discussions among
+ * multiple AI models.
+ *
+ * @param ctx    - Plugin context provided by the OpenCode runtime.
+ * @param options - Partial `FusionConfig` override. Invalid values fall back
+ *                 to `DEFAULT_FUSION_CONFIG` with a console warning.
+ * @returns A `Plugin` hooks object with chat, tool, and event handlers.
+ *
+ * @example
+ * ```ts
+ * import { FusionPlugin } from "@modelfusion/plugin/server";
+ *
+ * const plugin = await FusionPlugin(ctx, {
+ *   panel: {
+ *     models: [
+ *       { providerId: "openai", modelId: "gpt-4o-mini" },
+ *       { providerId: "anthropic", modelId: "claude-3-haiku" },
+ *     ],
+ *   },
+ *   judge: { providerId: "openai", modelId: "gpt-4o" },
+ *   triggering: "manual",
+ * });
+ * ```
+ */
+export const FusionPlugin: Plugin = async (ctx, options?) => {
+  // Parse and validate config — fall back to defaults on invalid input
+  let config: FusionConfig;
+  try {
+    config = FusionConfigSchema.parse(options ?? DEFAULT_FUSION_CONFIG);
+  } catch (err) {
+    console.error(
+      "[fusion-plugin] Invalid config, using defaults:",
+      (err as Error).message,
+    );
+    config = DEFAULT_FUSION_CONFIG;
+  }
+
+  // Initialize core engine components
+  const recursionGuard = new RecursionGuard();
+  const costTracker = new CostTracker();
+
+  // Build a shared plugin state used by multiple hook factories.
+  // Extra properties beyond what a factory requires are benign thanks to
+  // TypeScript structural typing — each factory destructures only what it needs.
+  const pluginState = {
+    config,
+    recursionGuard,
+    costTracker,
+    pipeline: runFusionPipeline,
+    client: ctx.client as unknown as PipelineClient,
+  };
+
+  return {
+    // -----------------------------------------------------------------------
+    // chat.message — intercept incoming user messages to trigger fusion
+    // -----------------------------------------------------------------------
+    "chat.message": createChatMessageHook(pluginState),
+
+    // -----------------------------------------------------------------------
+    // chat.params — adjust temperature / max_tokens for panelist calls
+    // -----------------------------------------------------------------------
+    "chat.params": createChatParamsHook(pluginState),
+
+    // -----------------------------------------------------------------------
+    // experimental.chat.messages.transform — inject fusion results into history
+    // -----------------------------------------------------------------------
+    "experimental.chat.messages.transform": createMessagesTransformHook({
+      fusionResult: undefined,
+    }),
+
+    // -----------------------------------------------------------------------
+    // experimental.chat.system.transform — inject deliberation system prompt
+    // -----------------------------------------------------------------------
+    "experimental.chat.system.transform": createSystemTransformHook({ config }),
+
+    // -----------------------------------------------------------------------
+    // tool — register the fusion:deliberate tool backed by the pipeline
+    // -----------------------------------------------------------------------
+    tool: {
+      "fusion:deliberate": createFusionTool(runFusionPipeline),
+    },
+
+    // -----------------------------------------------------------------------
+    // tool.execute.before — guard against recursive deliberation calls
+    // -----------------------------------------------------------------------
+    "tool.execute.before": createToolExecuteBeforeHook(pluginState),
+
+    // -----------------------------------------------------------------------
+    // tool.execute.after — format fusion results / update cost tracker
+    // -----------------------------------------------------------------------
+    "tool.execute.after": createToolExecuteAfterHook(pluginState),
+
+    // -----------------------------------------------------------------------
+    // event — handle session lifecycle events
+    // -----------------------------------------------------------------------
+    event: createEventHook(pluginState),
+  } as unknown as import("@opencode-ai/plugin").Hooks;
+};

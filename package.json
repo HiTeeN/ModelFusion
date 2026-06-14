@@ -1,0 +1,20 @@
+{
+  "name": "@modelfusion/plugin",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "bun test --isolate",
+    "test:integration": "bun test --isolate '*integration*'",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.4.9",
+    "@opencode-ai/sdk": "^1.4.9",
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
+}
