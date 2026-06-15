@@ -1,5 +1,7 @@
 import type { TuiPluginApi, TuiDialogStack } from "@opencode-ai/plugin/tui";
 
+const FUSION_MANUAL_VARIANT = "fusion:manual";
+
 /**
  * New keymap-layer command shape used by `api.keymap.registerLayer`.
  * Matches the shape registered by `index.ts` and `config.ts`.
@@ -109,6 +111,7 @@ function delegateToServerPipeline(
   void api.client.session
     .prompt({
       sessionID,
+      variant: FUSION_MANUAL_VARIANT,
       parts: [{ type: "text", text: question }],
     })
     .catch((_err: unknown) => {

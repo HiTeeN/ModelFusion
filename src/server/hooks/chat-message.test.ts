@@ -99,6 +99,27 @@ describe("createChatMessageHook", () => {
     expect(output.parts).toEqual([textPart("Hello, how are you?")]);
   });
 
+  test("GIVEN manual fusion variant WHEN message arrives THEN pipeline is called", async () => {
+    const pipeline = mock(async () => ({
+      status: "ok",
+      responses: [],
+      cost: { totalPromptTokens: 0, totalCompletionTokens: 0, estimatedCost: 0 },
+      synthesizedAnswer: "Fused answer",
+    }));
+    const state = makePluginState({
+      config: makeConfig({ triggering: "manual" }),
+      pipeline: pipeline as unknown as ChatMessagePluginState["pipeline"],
+    });
+    const hook = createChatMessageHook(state);
+    const input = makeInput({ variant: "fusion:manual" });
+    const output = makeOutput([textPart("Force fusion")]);
+
+    await hook(input, output);
+
+    expect(pipeline).toHaveBeenCalledTimes(1);
+    expect(output.parts).toEqual([textPart("Fused answer")]);
+  });
+
   // -----------------------------------------------------------------------
   // Test 2: Auto mode — pipeline called
   // -----------------------------------------------------------------------

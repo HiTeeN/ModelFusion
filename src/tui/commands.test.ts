@@ -158,16 +158,22 @@ describe("createFusionCommand", () => {
 
     const toastCalls = (api.ui.toast as ReturnType<typeof mock>).mock.calls;
 
-    const infoToast = toastCalls.find(
+        const infoToast = toastCalls.find(
       (c: unknown[]) => (c[0] as Record<string, unknown>).variant === "info",
     );
     expect(infoToast).toBeDefined();
     expect((infoToast![0] as Record<string, unknown>).title).toBe("Fusion");
     expect((infoToast![0] as Record<string, unknown>).message).toContain(
       "Fan-out started",
-    );
+        );
 
-    expect(api.client.session.prompt).toHaveBeenCalled();
+        expect(api.client.session.prompt).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variant: "fusion:manual",
+            parts: [{ type: "text", text: "What is the meaning of life?" }],
+          }),
+        );
+        expect(api.client.session.prompt).toHaveBeenCalled();
   });
 
   // GIVEN a command with a closed dialog stack (no question path)

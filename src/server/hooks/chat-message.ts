@@ -5,6 +5,8 @@ import { runFusionPipeline, type PipelineClient } from "../pipeline";
 import type { OriginalModel } from "../synthesizer";
 import type { UserMessage, Part } from "@opencode-ai/sdk";
 
+const FUSION_MANUAL_VARIANT = "fusion:manual";
+
 // ---------------------------------------------------------------------------
 // PluginState — the dependencies injected into the hook factory
 // ---------------------------------------------------------------------------
@@ -107,26 +109,30 @@ export function createChatMessageHook(
     // -----------------------------------------------------------------------
     let shouldTrigger = false;
 
-    switch (config.triggering) {
-      case "manual":
-        // Manual mode — never auto-trigger; pass through unchanged
-        shouldTrigger = false;
-        break;
+    if (input.variant === FUSION_MANUAL_VARIANT) {
+      shouldTrigger = true;
+    } else {
+      switch (config.triggering) {
+        case "manual":
+          // Manual mode — never auto-trigger; pass through unchanged
+          shouldTrigger = false;
+          break;
 
-      case "auto":
-        // Auto mode — always trigger
-        shouldTrigger = true;
-        break;
+        case "auto":
+          // Auto mode — always trigger
+          shouldTrigger = true;
+          break;
 
-      case "threshold": {
-        // Threshold mode — check length and keywords
-        const threshold = config.threshold ?? { minPromptLength: 200, keywords: [] };
-        shouldTrigger = meetsThreshold(
-          prompt,
-          threshold.minPromptLength,
-          threshold.keywords,
-        );
-        break;
+        case "threshold": {
+          // Threshold mode — check length and keywords
+          const threshold = config.threshold ?? { minPromptLength: 200, keywords: [] };
+          shouldTrigger = meetsThreshold(
+            prompt,
+            threshold.minPromptLength,
+            threshold.keywords,
+          );
+          break;
+        }
       }
     }
 
