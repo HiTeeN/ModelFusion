@@ -14,6 +14,15 @@ The main plugin export for the OpenCode server runtime.
 import { FusionPlugin } from "@modelfusion/plugin/server";
 ```
 
+The module also exposes:
+
+```typescript
+import pluginModule, { server } from "@modelfusion/plugin/server";
+// pluginModule = { server }
+```
+
+OpenCode loads the server entrypoint through the default module shape `{ server }`.
+
 **Type**: `Plugin` (from `@opencode-ai/plugin`)
 
 **Signature**:
@@ -64,6 +73,15 @@ The TUI plugin export for the OpenCode terminal UI.
 import { FusionTuiPlugin } from "@modelfusion/plugin/tui";
 ```
 
+The module also exposes:
+
+```typescript
+import pluginModule, { tui } from "@modelfusion/plugin/tui";
+// pluginModule = { tui }
+```
+
+OpenCode loads the TUI entrypoint through the default module shape `{ tui }`.
+
 **Type**: `TuiPlugin` (from `@opencode-ai/plugin/tui`)
 
 **Signature**:
@@ -80,7 +98,7 @@ const FusionTuiPlugin: TuiPlugin = async (
 - `_options` — Plugin options (currently unused, but required by type).
 - `_meta` — Plugin metadata from the runtime (package info, version, etc.).
 
-**Returns**: `Promise<void>` (registers slash commands and event handlers as side effects via `api.keymap.registerLayer`).
+**Returns**: `Promise<void>` (registers `/fusion` and `/fusion:config`, stores plugin state in `api.kv`, and wires lifecycle handlers via `api.keymap.registerLayer`).
 
 **Example**:
 ```typescript
@@ -88,6 +106,20 @@ import { FusionTuiPlugin } from "@modelfusion/plugin/tui";
 
 const tuiPlugin = await FusionTuiPlugin(api);
 ```
+
+### `/fusion` Manual Trigger Path
+
+`createFusionCommand()` sends the user question through:
+
+```typescript
+await api.client.session.prompt({
+  sessionID,
+  variant: "fusion:manual",
+  parts: [{ type: "text", text: question }],
+});
+```
+
+The server `chat.message` hook treats `variant === "fusion:manual"` as an explicit signal to run `runFusionPipeline(...)` even when `triggering` is configured as `"manual"`.
 
 ---
 

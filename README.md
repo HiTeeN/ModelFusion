@@ -37,7 +37,7 @@ Each step streams back to the chat, so you see the deliberation unfold in real t
 
 ## Installation
 
-Requires OpenCode **1.17.7 or later** (uses the v1.17.6+ API with `parts`-based messaging and `tool()` registration).
+Requires OpenCode **1.17.7 or later** (uses the v1.17.6+ API with `parts`-based messaging, `tool()` registration, and TUI keymap layers).
 
 1. Add the package to your OpenCode project:
 
@@ -49,19 +49,23 @@ bun add @modelfusion/plugin
 
 ```json
 {
-  "plugins": ["@modelfusion/plugin"]
+  "plugin": ["@modelfusion/plugin"]
 }
 ```
 
-3. Restart OpenCode. The `/fusion` command should now be available in the TUI via `api.keymap.registerLayer`, and the `fusion:deliberate` tool will be registered with the server plugin using the `tool()` API.
+3. Restart OpenCode. The `/fusion` and `/fusion:config` commands should now be available in the TUI via `api.keymap.registerLayer`, and the `fusion:deliberate` tool will be registered with the server plugin using the `tool()` API.
+
+### Local Development Install
+
+For a local `file:` install, the OpenCode config directory that loads the plugin must also resolve a compatible `@opencode-ai/plugin` runtime. In practice that means the config-local `package.json` should pin `@opencode-ai/plugin` to **1.17.7+** alongside `@modelfusion/plugin`.
 
 ### Server Plugin
 
-The server plugin (`@modelfusion/plugin/server`) registers the deliberation tool and lifecycle hooks. You can pass config options when creating the plugin:
+The server plugin (`@modelfusion/plugin/server`) registers the deliberation tool and lifecycle hooks. The module exports both a named `server` alias and a default module shape `{ server }` so OpenCode can load it directly. You can pass config options when creating the plugin:
 
 ```json
 {
-  "plugins": [
+  "plugin": [
     {
       "id": "@modelfusion/plugin",
       "options": {
@@ -81,7 +85,7 @@ The server plugin (`@modelfusion/plugin/server`) registers the deliberation tool
 
 ### TUI Plugin
 
-The TUI plugin (`@modelfusion/plugin/tui`) is loaded automatically alongside the server plugin. It registers the `/fusion` slash command and `/deliberate` and `/panel` aliases via `api.keymap.registerLayer`. No additional config needed.
+The TUI plugin (`@modelfusion/plugin/tui`) is loaded automatically alongside the server plugin. The module exports both a named `tui` alias and a default module shape `{ tui }` so OpenCode can load it directly. It registers `/fusion`, `/deliberate`, `/panel`, and `/fusion:config` via `api.keymap.registerLayer`. No additional config needed.
 
 ### Version Compatibility
 
@@ -129,6 +133,8 @@ Deliberation only happens when you explicitly ask for it. This is the simplest a
 ```
 /fusion What are the tradeoffs between SQL and NoSQL databases?
 ```
+
+The TUI command sends your question with `variant: "fusion:manual"`, which the server `chat.message` hook treats as an explicit fusion request. That means `/fusion` now forces the deliberation pipeline even when global `triggering` remains `manual`.
 
 **Chat:** Use the `fusion:deliberate` tool directly. The tool accepts no extra arguments -- it deliberates on the current conversation context.
 

@@ -10,7 +10,7 @@ ModelFusion is a dual-plugin system (server + TUI) that enables multi-model deli
 opencode runtime
 │
 ├── Server Plugin (src/server/index.ts)
-│   ├── FusionPlugin ────────────────────────────────────────── Plugin entry point
+│   ├── FusionPlugin / default { server } ───────────────────── Plugin entry point
 │   │   ├── Config parser (FusionConfigSchema)
 │   │   ├── RecursionGuard (in-memory session state)
 │   │   ├── CostTracker (per-session accumulator)
@@ -48,10 +48,11 @@ opencode runtime
 │       └── sanitizePanelResults ────── control-char removal before judge prompt
 │
 ├── TUI Plugin (src/tui/index.ts)
-│   ├── FusionTuiPlugin ─────────────────────────────────────── TUI entry point
+│   ├── FusionTuiPlugin / default { tui } ───────────────────── TUI entry point
 │   │   ├── api.kv state persistence (fusion.initialized, fusion.version)
 │   │   ├── /fusion slash command  (src/tui/commands.ts)
 │   │   ├── /fusion:config command (src/tui/config.ts)
+│   │   ├── `variant: "fusion:manual"` prompt delegation
 │   │   ├── FusionProgressNotifier (src/tui/progress.ts)
 │   │   └── Event subscriptions (session.created, session.deleted)
 │
@@ -73,12 +74,22 @@ User prompt
 ┌─────────────────────────────────────────────────────────────────────┐
 │ 1. chat.message hook                                                │
 │    (createChatMessageHook)                                          │
-│    ├─ Manual mode:    pass through (no trigger)                     │
+│    ├─ Manual mode:    pass through unless variant="fusion:manual"  │
 │    ├─ Auto mode:      always trigger                                │
 │    └─ Threshold mode: trigger if prompt > minPromptLength           │
 │                       OR prompt contains any keyword                 │
 │    ┌─ RecursionGuard check: skip if fusion already active           │
 │    └─ On trigger: calls runFusionPipeline(...)                      │
+└──────────────────────────┬──────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ 1a. Explicit TUI manual trigger                                     │
+│    (`/fusion` in src/tui/commands.ts)                               │
+│    ├─ Opens a dialog prompt for the question                        │
+│    ├─ Calls `api.client.session.prompt(...)`                        │
+│    ├─ Sends `variant: "fusion:manual"`                             │
+│    └─ Server hook treats that variant as force-trigger              │
 └──────────────────────────┬──────────────────────────────────────────┘
                            │
                            ▼
