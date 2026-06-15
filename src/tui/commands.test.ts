@@ -1,6 +1,10 @@
 import { describe, expect, test, mock } from "bun:test";
 import { createFusionCommand } from "./commands";
 import type { TuiPluginApi } from "@opencode-ai/plugin/tui";
+import {
+  emitFusionProgress,
+  getFusionProgressListenerCount,
+} from "../progress-bus";
 
 function mockApi(overrides: Partial<TuiPluginApi> = {}): TuiPluginApi {
   const store = new Map<string, unknown>();
@@ -156,24 +160,39 @@ describe("createFusionCommand", () => {
 
     await cmd.run();
 
-    const toastCalls = (api.ui.toast as ReturnType<typeof mock>).mock.calls;
+    expect(api.client.session.prompt).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: "fusion:manual",
+        parts: [{ type: "text", text: "What is the meaning of life?" }],
+      }),
+    );
+    expect(api.client.session.prompt).toHaveBeenCalled();
+    expect(getFusionProgressListenerCount()).toBe(1);
 
-        const infoToast = toastCalls.find(
-      (c: unknown[]) => (c[0] as Record<string, unknown>).variant === "info",
+    emitFusionProgress({
+      sessionID: "",
+      stage: "judging",
+      detail: "Evaluating 3 panel responses...",
+    });
+
+    const toastCalls = (api.ui.toast as ReturnType<typeof mock>).mock.calls;
+    const infoToast = toastCalls.find(
+      (c: unknown[]) =>
+        (c[0] as Record<string, unknown>).variant === "info" &&
+        String((c[0] as Record<string, unknown>).title).includes("judging"),
     );
     expect(infoToast).toBeDefined();
-    expect((infoToast![0] as Record<string, unknown>).title).toBe("Fusion");
     expect((infoToast![0] as Record<string, unknown>).message).toContain(
-      "Fan-out started",
-        );
+      "Evaluating 3 panel responses",
+    );
 
-        expect(api.client.session.prompt).toHaveBeenCalledWith(
-          expect.objectContaining({
-            variant: "fusion:manual",
-            parts: [{ type: "text", text: "What is the meaning of life?" }],
-          }),
-        );
-        expect(api.client.session.prompt).toHaveBeenCalled();
+    emitFusionProgress({
+      sessionID: "",
+      stage: "complete",
+      detail: "Fusion complete.",
+    });
+
+    expect(getFusionProgressListenerCount()).toBe(0);
   });
 
   // GIVEN a command with a closed dialog stack (no question path)
@@ -261,5 +280,54 @@ describe("createFusionCommand", () => {
     expect(layer.commands).toHaveLength(1);
     expect(layer.commands[0].name).toBe("fusion:deliberate");
     expect(layer.commands[0].slashName).toBe("fusion");
+  });
+
+  test("progress events from another session are ignored", async () => {
+    const api = mockApi({
+      route: {
+        register: mock(() => () => {}),
+        navigate: mock(() => {}),
+        current: { name: "session", params: { sessionID: "ses_local" } },
+      } as TuiPluginApi["route"],
+    });
+
+    let capturedOnConfirm: ((value: string) => void) | undefined;
+    api.ui.dialog = openDialogStack({
+      replace: mock((renderFn: () => unknown) => {
+        renderFn();
+        capturedOnConfirm?.("Question");
+      }),
+    });
+
+    (api.ui.DialogPrompt as ReturnType<typeof mock>) = mock(
+      (props: Record<string, unknown>) => {
+        capturedOnConfirm = props.onConfirm as (value: string) => void;
+        return null;
+      },
+    );
+
+    const cmd = createFusionCommand(api);
+    await cmd.run();
+
+    emitFusionProgress({
+      sessionID: "ses_other",
+      stage: "judging",
+      detail: "Should be ignored",
+    });
+
+    const toastCalls = (api.ui.toast as ReturnType<typeof mock>).mock.calls;
+    expect(
+      toastCalls.some((c: unknown[]) =>
+        String((c[0] as Record<string, unknown>).message).includes(
+          "Should be ignored",
+        ),
+      ),
+    ).toBe(false);
+
+    emitFusionProgress({
+      sessionID: "ses_local",
+      stage: "complete",
+      detail: "Done",
+    });
   });
 });

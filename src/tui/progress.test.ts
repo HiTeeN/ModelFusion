@@ -1,5 +1,10 @@
 import { describe, expect, test, mock } from "bun:test";
 import { FusionProgressNotifier } from "./progress";
+import {
+  emitFusionProgress,
+  getFusionProgressListenerCount,
+  subscribeToFusionProgress,
+} from "../progress-bus";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -163,5 +168,29 @@ describe("FusionProgressNotifier", () => {
     // THEN the toast has a positive duration (auto-dismiss)
     const call = lastToastCall(api);
     expect(call!.duration).toBeGreaterThan(0);
+  });
+
+  test("progress bus events can be forwarded into notifier toasts", () => {
+    const api = mockApi();
+    const notifier = new FusionProgressNotifier(api);
+
+    const unsubscribe = subscribeToFusionProgress((event) => {
+      notifier.notifyStage(event.stage, event.detail);
+    });
+
+    expect(getFusionProgressListenerCount()).toBe(1);
+
+    emitFusionProgress({
+      sessionID: "ses_test",
+      stage: "panelist",
+      detail: "openai/gpt-4o-mini completed.",
+    });
+
+    const call = lastToastCall(api);
+    expect(call!.title).toContain("panelist");
+    expect(call!.message).toContain("completed");
+
+    unsubscribe();
+    expect(getFusionProgressListenerCount()).toBe(0);
   });
 });

@@ -1,4 +1,9 @@
 import type { TuiPluginApi, TuiDialogStack } from "@opencode-ai/plugin/tui";
+import {
+  subscribeToFusionProgress,
+  type FusionProgressEvent,
+} from "../progress-bus";
+import { FusionProgressNotifier } from "./progress";
 
 const FUSION_MANUAL_VARIANT = "fusion:manual";
 
@@ -26,10 +31,10 @@ export type FusionKeymapCommand = {
  * Flow:
  *   1. User types `/fusion <question>` in the TUI prompt
  *   2. run() fires → extract question from dialog prompt
- *   3. Show "fan-out started" toast
+ *   3. Subscribe to real pipeline progress events
  *   4. Delegate to server plugin (async, non-blocking)
  *   5. Server plugin runs: fan-out → judge → synthesize
- *   6. Progress toasts fire at each stage completion
+ *   6. Progress toasts fire from real stage events
  *   7. Final result toast displayed
  */
 export function createFusionCommand(api: TuiPluginApi): FusionKeymapCommand {
@@ -56,13 +61,6 @@ export function createFusionCommand(api: TuiPluginApi): FusionKeymapCommand {
         });
         return;
       }
-
-      api.ui.toast({
-        variant: "info",
-        title: "Fusion",
-        message: "Fan-out started — querying panel models...",
-      });
-
       delegateToServerPipeline(api, question);
     },
   };
@@ -102,11 +100,33 @@ function delegateToServerPipeline(
   api: TuiPluginApi,
   question: string,
 ): void {
+  const notifier = new FusionProgressNotifier(api);
   const sessionID =
     api.route.current.name === "session"
       ? (api.route.current as { params: { sessionID: string } }).params
           .sessionID
       : "";
+
+  const unsubscribe = subscribeToFusionProgress((event: FusionProgressEvent) => {
+    if (event.sessionID !== sessionID) {
+      return;
+    }
+
+    notifier.notifyStage(event.stage, event.detail);
+
+    if (
+      event.stage === "complete" ||
+      event.stage === "degraded" ||
+      event.stage === "error"
+    ) {
+      unsubscribe();
+      clearTimeout(safetyTimeout);
+    }
+  });
+
+  const safetyTimeout = setTimeout(() => {
+    unsubscribe();
+  }, 300_000);
 
   void api.client.session
     .prompt({
@@ -115,34 +135,12 @@ function delegateToServerPipeline(
       parts: [{ type: "text", text: question }],
     })
     .catch((_err: unknown) => {
+      unsubscribe();
+      clearTimeout(safetyTimeout);
       api.ui.toast({
         variant: "error",
         title: "Fusion",
         message: "Fusion pipeline failed. Check the server logs for details.",
       });
     });
-
-  setTimeout(() => {
-    api.ui.toast({
-      variant: "info",
-      title: "Fusion",
-      message: "Panelists complete — running judge analysis...",
-    });
-  }, 1500);
-
-  setTimeout(() => {
-    api.ui.toast({
-      variant: "info",
-      title: "Fusion",
-      message: "Judging complete — synthesizing final answer...",
-    });
-  }, 3000);
-
-  setTimeout(() => {
-    api.ui.toast({
-      variant: "success",
-      title: "Fusion",
-      message: "Synthesis complete. Check the response for the final analysis.",
-    });
-  }, 4500);
 }
