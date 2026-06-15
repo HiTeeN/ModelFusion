@@ -33,7 +33,7 @@ When you trigger a deliberation (either manually or automatically), here's what 
   Final Response (with attributions)
 ```
 
-Each step streams back to the chat, so you see the deliberation unfold in real time. Panel models run in parallel, so latency stays close to the slowest single model call.
+Each step streams back to the chat, so you see the deliberation unfold in real time. In the TUI, `/fusion` now shows real pipeline-driven progress toasts as panelists finish, judging starts, and synthesis completes. Panel models run in parallel, so latency stays close to the slowest single model call.
 
 ## Installation
 
@@ -162,7 +162,7 @@ This gives you a middle ground -- automatic for complex questions, skip for quic
 
 ### What You See
 
-During a deliberation, you'll see progress updates in the chat:
+During a deliberation, you'll see progress updates in the chat and TUI:
 
 ```
 [Model A] Considering your question from a performance perspective...
@@ -173,6 +173,8 @@ During a deliberation, you'll see progress updates in the chat:
 
 [Synthesizer] After consulting the panel, here's a balanced view...
 ```
+
+`/fusion` progress is now driven by real pipeline events rather than fixed UI timers, so the TUI only advances when the underlying stage actually advances.
 
 If a model's response is low quality, the judge rejects it and flags the issue. At least 2 valid responses must pass the judge for a synthesis to happen.
 

@@ -54,6 +54,7 @@ opencode runtime
 │   │   ├── /fusion:config command (src/tui/config.ts)
 │   │   ├── `variant: "fusion:manual"` prompt delegation
 │   │   ├── FusionProgressNotifier (src/tui/progress.ts)
+│   │   ├── Progress bus subscription (src/progress-bus.ts)
 │   │   └── Event subscriptions (session.created, session.deleted)
 │
 └── Types (src/types/)
@@ -89,7 +90,18 @@ User prompt
 │    ├─ Opens a dialog prompt for the question                        │
 │    ├─ Calls `api.client.session.prompt(...)`                        │
 │    ├─ Sends `variant: "fusion:manual"`                             │
+│    ├─ Subscribes to `progress-bus` for the active `sessionID`      │
 │    └─ Server hook treats that variant as force-trigger              │
+└──────────────────────────┬──────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ 1b. Progress event bridge                                           │
+│    (`src/progress-bus.ts`)                                          │
+│    ├─ `runFusionPipeline()` emits real stage events                 │
+│    ├─ `fanOut()` emits per-panelist settlement callbacks           │
+│    ├─ `/fusion` filters events by `sessionID` before toasting      │
+│    └─ Terminal events clear the TUI listener                       │
 └──────────────────────────┬──────────────────────────────────────────┘
                            │
                            ▼
@@ -142,7 +154,13 @@ User prompt
 │    ├─ Per synthesis: trackSynthesis(0, 0)                           │
 │    └─ getSummary() → totals + estimatedCost                         │
 │                                                                     │
-│    Stage 8: Cleanup                                                 │
+│    Stage 8: Progress emission                                       │
+│    ├─ Emits: fan-out, panelist, judging, synthesis                 │
+│    ├─ Emits terminal status: complete, degraded, error             │
+│    └─ Progress callback failures are swallowed so UI failures       │
+│       cannot corrupt panel results                                  │
+│                                                                     │
+│    Stage 9: Cleanup                                                 │
 │    └─ markFusionComplete(sessionID)                                 │
 └──────────────────────────┬──────────────────────────────────────────┘
                            │
@@ -224,6 +242,8 @@ Each factory destructures only what it needs. Extra properties are ignored via s
 - **Retry**: 1 retry per call with 100ms delay, configurable via `FanOutOptions.retries`
 - **Error isolation**: Each promise has its own `.catch()` returning a `PanelResult` with `error` field
 - **Tracking**: Per-model latency via `startTimes` Map, token counts from `response.info.tokens`
+- **Progress hook**: Optional `FanOutOptions.onPanelistDone(result)` fires on both success and failure settlement
+- **Callback isolation**: Progress callback errors are swallowed so UI failures cannot change `PanelResult` success/failure state
 
 ### Stage 3: Judge
 - **File**: `src/server/judge.ts`
@@ -253,7 +273,15 @@ Each factory destructures only what it needs. Extra properties are ignored via s
 - **Summary**: `costTracker.getSummary()` → `{ perModel, judge, synthesis, totals, estimatedCost }`
 - **Estimation**: 3 pricing tiers: budget ($0.15/$0.60 per 1M), standard ($3/$15), premium ($15/$75)
 
-### Stage 6: Degradation Post-Processing
+### Stage 6: Progress Events
+- **File**: `src/progress-bus.ts`
+- **Emitter**: process-local EventEmitter shared by server pipeline and TUI command code
+- **Event shape**: `{ sessionID, stage, detail? }`
+- **Stages**: `fan-out`, `panelist`, `judging`, `synthesis`, `complete`, `degraded`, `error`
+- **Filtering**: TUI subscribers ignore events for other sessions
+- **Cleanup**: terminal stages unsubscribe immediately; `/fusion` also uses a 5-minute safety timeout
+
+### Stage 7: Degradation Post-Processing
 - **File**: `src/server/degradation.ts`
 - **Applied in**: hook consumers (not in pipeline itself)
 - **Scenarios**:
