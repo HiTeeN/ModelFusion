@@ -1,5 +1,5 @@
 import { describe, expect, test, mock } from "bun:test";
-import { FusionTuiPlugin } from "./index";
+import pluginModule, { FusionTuiPlugin, tui } from "./index";
 import type { TuiPluginApi, TuiCommand } from "@opencode-ai/plugin/tui";
 
 // ---------------------------------------------------------------------------
@@ -100,6 +100,8 @@ function mockApi(overrides: Partial<TuiPluginApi> = {}): TuiPluginApi {
 describe("FusionTuiPlugin", () => {
   test("is a function", () => {
     expect(typeof FusionTuiPlugin).toBe("function");
+    expect(typeof tui).toBe("function");
+    expect(pluginModule.tui).toBe(tui);
   });
 
   test("registers the /fusion command via api.keymap.registerLayer", async () => {
@@ -107,17 +109,20 @@ describe("FusionTuiPlugin", () => {
 
     await FusionTuiPlugin(api, undefined, undefined as any);
 
-    expect(api.keymap.registerLayer).toHaveBeenCalledTimes(1);
+    expect(api.keymap.registerLayer).toHaveBeenCalledTimes(2);
 
-    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
+    const firstLayer = (api.keymap.registerLayer as ReturnType<typeof mock>)
       .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
+    const secondLayer = (api.keymap.registerLayer as ReturnType<typeof mock>)
+      .mock.calls[1][0] as { commands: Array<Record<string, unknown>> };
 
-    const commands = layer.commands;
+    const fusionCommands = firstLayer.commands;
+    const configCommands = secondLayer.commands;
 
-    expect(commands.length).toBeGreaterThanOrEqual(1);
-
-    const fusionCmd = commands.find((c) => c.name === "fusion:deliberate");
+    const fusionCmd = fusionCommands.find((c) => c.name === "fusion:deliberate");
+    const configCmd = configCommands.find((c) => c.name === "fusion:config");
     expect(fusionCmd).toBeDefined();
+    expect(configCmd).toBeDefined();
     expect(fusionCmd!.title).toContain("Fusion");
     expect(fusionCmd!.slashName).toBe("fusion");
     expect((fusionCmd!.slashAliases as string[])).toContain("deliberate");
@@ -156,7 +161,7 @@ describe("FusionTuiPlugin", () => {
     expect(api.lifecycle.onDispose).toHaveBeenCalledTimes(1);
   });
 
-  test("run handler calls ui.toast (placeholder)", async () => {
+  test("run handler calls ui.toast for missing prompt", async () => {
     const api = mockApi();
 
     await FusionTuiPlugin(api, undefined, undefined as any);
@@ -171,8 +176,8 @@ describe("FusionTuiPlugin", () => {
 
     expect(api.ui.toast).toHaveBeenCalledTimes(1);
     const toastCall = (api.ui.toast as ReturnType<typeof mock>).mock.calls[0][0];
-    expect(toastCall.variant).toBe("info");
+    expect(toastCall.variant).toBe("warning");
     expect(toastCall.title).toBe("Fusion");
-    expect(toastCall.message).toContain("placeholder");
+    expect(toastCall.message).toContain("No question provided");
   });
 });

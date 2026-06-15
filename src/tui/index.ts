@@ -4,6 +4,8 @@ import type {
   TuiPluginApi,
   TuiPluginMeta,
 } from "@opencode-ai/plugin/tui";
+import { createFusionCommand } from "./commands";
+import { createConfigUI } from "./config";
 
 // ---------------------------------------------------------------------------
 // FusionTuiPlugin — TUI plugin entry point
@@ -48,31 +50,11 @@ export const FusionTuiPlugin: TuiPlugin = async (
   // Register /fusion slash command
   // -------------------------------------------------------------------------
   api.keymap.registerLayer({
-    commands: [
-      {
-        name: "fusion:deliberate",
-        title: "Fusion: Deliberate",
-        desc:
-          "Invoke multi-model deliberation — a panel of AI models analyzes " +
-          "your question, a judge compares their responses, and a synthesizer " +
-          "produces a final answer with attribution.",
-        category: "fusion",
-        namespace: "palette",
-        slashName: "fusion",
-        slashAliases: ["deliberate", "panel"],
-        run: async () => {
-          // TODO: Task 23-25 — implement command logic
-          // Placeholder: show a toast indicating the command was invoked
-          api.ui.toast({
-            variant: "info",
-            title: "Fusion",
-            message: "Fusion deliberation triggered (placeholder).",
-          });
-        },
-      },
-    ],
+    commands: [createFusionCommand(api)],
     bindings: [],
   });
+
+  createConfigUI(api);
 
   // -------------------------------------------------------------------------
   // Subscribe to lifecycle events
@@ -93,4 +75,10 @@ export const FusionTuiPlugin: TuiPlugin = async (
     unsubSessionCreated();
     unsubSessionDeleted();
   });
+};
+
+export const tui = FusionTuiPlugin;
+
+export default {
+  tui,
 };
