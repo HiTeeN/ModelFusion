@@ -1,4 +1,4 @@
-import type { TuiPluginApi, TuiDialogStack } from "@opencode-ai/plugin/tui";
+import type { TuiPluginApi, TuiDialogStack, TuiCommand } from "@opencode-ai/plugin/tui";
 import {
   subscribeToFusionProgress,
   type FusionProgressEvent,
@@ -8,21 +8,6 @@ import { FusionProgressNotifier } from "./progress";
 const FUSION_MANUAL_VARIANT = "fusion:manual";
 
 /**
- * New keymap-layer command shape used by `api.keymap.registerLayer`.
- * Matches the shape registered by `index.ts` and `config.ts`.
- */
-export type FusionKeymapCommand = {
-  name: string;
-  title: string;
-  desc: string;
-  category: string;
-  namespace: string;
-  slashName: string;
-  slashAliases: string[];
-  run: () => Promise<void> | void;
-};
-
-/**
  * Creates the `/fusion` slash command that triggers the multi-model
  * deliberation pipeline. The command extracts the user's question,
  * shows progress toasts at each pipeline stage, and delegates the
@@ -30,25 +15,26 @@ export type FusionKeymapCommand = {
  *
  * Flow:
  *   1. User types `/fusion <question>` in the TUI prompt
- *   2. run() fires → extract question from dialog prompt
+ *   2. onSelect() fires → extract question from dialog prompt
  *   3. Subscribe to real pipeline progress events
  *   4. Delegate to server plugin (async, non-blocking)
  *   5. Server plugin runs: fan-out → judge → synthesize
  *   6. Progress toasts fire from real stage events
  *   7. Final result toast displayed
  */
-export function createFusionCommand(api: TuiPluginApi): FusionKeymapCommand {
+export function createFusionCommand(api: TuiPluginApi): TuiCommand {
   return {
-    name: "fusion:deliberate",
     title: "Fusion: Deliberate",
-    desc:
+    value: "fusion:deliberate",
+    description:
       "Multi-model deliberation: panel of models → judge → structured analysis. " +
       "Invoke from the TUI palette or via the /fusion slash command.",
     category: "fusion",
-    namespace: "palette",
-    slashName: "fusion",
-    slashAliases: ["deliberate", "panel"],
-    run: async () => {
+    slash: {
+      name: "fusion",
+      aliases: ["deliberate", "panel"],
+    },
+    onSelect: async () => {
       const question = await extractQuestion(api);
 
       if (!question || !question.trim()) {

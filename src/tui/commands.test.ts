@@ -119,18 +119,17 @@ describe("createFusionCommand", () => {
     const api = mockApi();
     const cmd = createFusionCommand(api);
 
-    expect(cmd.name).toBe("fusion:deliberate");
+    expect(cmd.value).toBe("fusion:deliberate");
     expect(cmd.title).toBe("Fusion: Deliberate");
-    expect(cmd.desc).toContain("Multi-model deliberation");
-    expect(cmd.desc).toContain("panel of models");
-    expect(cmd.desc).toContain("judge");
-    expect(cmd.desc).toContain("structured analysis");
+    expect(cmd.description).toContain("Multi-model deliberation");
+    expect(cmd.description).toContain("panel of models");
+    expect(cmd.description).toContain("judge");
+    expect(cmd.description).toContain("structured analysis");
     expect(cmd.category).toBe("fusion");
-    expect(cmd.namespace).toBe("palette");
-    expect(cmd.slashName).toBe("fusion");
-    expect(cmd.slashAliases).toContain("deliberate");
-    expect(cmd.slashAliases).toContain("panel");
-    expect(typeof cmd.run).toBe("function");
+    expect(cmd.slash?.name).toBe("fusion");
+    expect(cmd.slash?.aliases).toContain("deliberate");
+    expect(cmd.slash?.aliases).toContain("panel");
+    expect(typeof cmd.onSelect).toBe("function");
   });
 
   // GIVEN a command with an open dialog stack
@@ -158,7 +157,7 @@ describe("createFusionCommand", () => {
 
     const cmd = createFusionCommand(api);
 
-    await cmd.run();
+    await cmd.onSelect?.();
 
     expect(api.client.session.prompt).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -204,7 +203,7 @@ describe("createFusionCommand", () => {
 
     const cmd = createFusionCommand(api);
 
-    await cmd.run();
+    await cmd.onSelect?.();
 
     const toastCalls = (api.ui.toast as ReturnType<typeof mock>).mock.calls;
     expect(toastCalls.length).toBeGreaterThanOrEqual(1);
@@ -246,7 +245,7 @@ describe("createFusionCommand", () => {
 
     const cmd = createFusionCommand(api);
 
-    await cmd.run();
+    await cmd.onSelect?.();
 
     const toastCalls = (api.ui.toast as ReturnType<typeof mock>).mock.calls;
 
@@ -264,22 +263,13 @@ describe("createFusionCommand", () => {
   // GIVEN the new keymap command
   // WHEN the command is registered via api.keymap.registerLayer
   // THEN it integrates with the layer registration shape
-  test("command integrates with api.keymap.registerLayer shape", () => {
+  test("command exposes runtime-compatible slash metadata", () => {
     const api = mockApi();
     const cmd = createFusionCommand(api);
 
-    api.keymap.registerLayer({
-      commands: [cmd],
-      bindings: [],
-    });
-
-    expect(api.keymap.registerLayer).toHaveBeenCalledTimes(1);
-    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
-      .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
-
-    expect(layer.commands).toHaveLength(1);
-    expect(layer.commands[0].name).toBe("fusion:deliberate");
-    expect(layer.commands[0].slashName).toBe("fusion");
+    expect(cmd.value).toBe("fusion:deliberate");
+    expect(cmd.slash?.name).toBe("fusion");
+    expect(cmd.slash?.aliases).toContain("deliberate");
   });
 
   test("progress events from another session are ignored", async () => {
@@ -307,7 +297,7 @@ describe("createFusionCommand", () => {
     );
 
     const cmd = createFusionCommand(api);
-    await cmd.run();
+    await cmd.onSelect?.();
 
     emitFusionProgress({
       sessionID: "ses_other",

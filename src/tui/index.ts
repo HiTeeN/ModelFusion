@@ -4,6 +4,7 @@ import type {
   TuiPluginApi,
   TuiPluginMeta,
 } from "@opencode-ai/plugin/tui";
+import { registerTuiCommands } from "./command-registration";
 import { createFusionCommand } from "./commands";
 import { createConfigUI } from "./config";
 
@@ -49,10 +50,7 @@ export const FusionTuiPlugin: TuiPlugin = async (
   // -------------------------------------------------------------------------
   // Register /fusion slash command
   // -------------------------------------------------------------------------
-  api.keymap.registerLayer({
-    commands: [createFusionCommand(api)],
-    bindings: [],
-  });
+  registerTuiCommands(api, [createFusionCommand(api)]);
 
   createConfigUI(api);
 

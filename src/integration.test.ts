@@ -690,27 +690,14 @@ describe("ModelFusion Integration", () => {
         },
       );
 
-      // GIVEN a keymap layer that registered a /fusion-style command
-      type FusionKeymapCommand = {
-        name: string;
-        title: string;
-        desc: string;
-        category: string;
-        namespace: string;
-        slashName: string;
-        slashAliases: string[];
-        run: () => Promise<void> | void;
-      };
-
-      const fusionCommand: FusionKeymapCommand = {
-        name: "fusion:deliberate",
+      // GIVEN a command registration that exposes /fusion
+      const fusionCommand = {
         title: "Fusion: Deliberate",
-        desc: "Multi-model deliberation",
+        value: "fusion:deliberate",
+        description: "Multi-model deliberation",
         category: "fusion",
-        namespace: "palette",
-        slashName: "fusion",
-        slashAliases: ["deliberate", "panel"],
-        run: async () => {
+        slash: { name: "fusion", aliases: ["deliberate", "panel"] },
+        onSelect: async () => {
           const question = "What is the meaning of life?";
           if (!question) {
             api.ui.toast({
@@ -727,24 +714,22 @@ describe("ModelFusion Integration", () => {
           });
           await api.client.session.prompt({
             sessionID: "",
+            variant: "fusion:manual",
             parts: [{ type: "text", text: question }],
           });
         },
       };
 
-      api.keymap.registerLayer({
-        commands: [fusionCommand],
-        bindings: [],
-      });
+      api.command!.register(() => [fusionCommand]);
 
-      // WHEN the layer is registered and run() fires
-      expect(api.keymap.registerLayer).toHaveBeenCalledTimes(1);
-      const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
-        .mock.calls[0][0] as { commands: FusionKeymapCommand[] };
+      // WHEN the command is registered and onSelect() fires
+      expect(api.command!.register).toHaveBeenCalledTimes(1);
+      const commands = (api.command!.register as ReturnType<typeof mock>)
+        .mock.calls[0][0]() as Array<typeof fusionCommand>;
 
-      const cmd = layer.commands.find((c) => c.name === "fusion:deliberate");
+      const cmd = commands.find((c) => c.value === "fusion:deliberate");
       expect(cmd).toBeDefined();
-      await cmd!.run();
+      await cmd!.onSelect();
 
       // THEN an info toast with "Fan-out started" was shown
       const toastCalls = (api.ui.toast as ReturnType<typeof mock>).mock.calls;
