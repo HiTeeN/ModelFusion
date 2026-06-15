@@ -3,6 +3,7 @@ import type { FusionConfig, PanelModel } from "../types/config";
 import type { PanelResult, JudgeOutput, FusionResult } from "../types/results";
 import { RecursionGuard } from "./recursion-guard";
 import type { OriginalModel } from "./synthesizer";
+import { subscribeToFusionProgress } from "../progress-bus";
 
 // ---------------------------------------------------------------------------
 // Mock modules — replace all sub-module imports used by pipeline.ts
@@ -182,11 +183,22 @@ describe("runFusionPipeline", () => {
       successPanelResult("google", "gemini-1.5-flash", "The answer is 42."),
     ];
 
-    mockFanOut.mockResolvedValue(panelResults);
+    mockFanOut.mockImplementation(async (_client, _sessionID, _prompt, _models, _config, options) => {
+      for (const result of panelResults) {
+        options?.onPanelistDone?.(result);
+      }
+      return panelResults;
+    });
     mockRunJudge.mockResolvedValue(validJudgeOutput);
     mockSynthesize.mockResolvedValue("Synthesized: Life's meaning is subjective yet universally sought.");
 
     const guard = freshGuard();
+    const events: string[] = [];
+    const unsubscribe = subscribeToFusionProgress((event) => {
+      if (event.sessionID === SESSION_ID) {
+        events.push(event.stage);
+      }
+    });
 
     // WHEN runFusionPipeline is called
     const result = await runFusionPipeline(
@@ -197,6 +209,8 @@ describe("runFusionPipeline", () => {
       originalModel,
       guard,
     );
+
+    unsubscribe();
 
     // THEN status is "ok"
     expect(result.status).toBe("ok");
@@ -234,6 +248,16 @@ describe("runFusionPipeline", () => {
 
     // THEN synthesize was called
     expect(mockSynthesize).toHaveBeenCalledTimes(1);
+
+    expect(events).toEqual([
+      "fan-out",
+      "panelist",
+      "panelist",
+      "panelist",
+      "judging",
+      "synthesis",
+      "complete",
+    ]);
   });
 
   // -----------------------------------------------------------------------
@@ -249,11 +273,22 @@ describe("runFusionPipeline", () => {
       successPanelResult("google", "gemini-1.5-flash", "Answer C"),
     ];
 
-    mockFanOut.mockResolvedValue(panelResults);
+    mockFanOut.mockImplementation(async (_client, _sessionID, _prompt, _models, _config, options) => {
+      for (const result of panelResults) {
+        options?.onPanelistDone?.(result);
+      }
+      return panelResults;
+    });
     mockRunJudge.mockResolvedValue(null);
     // synthesize should NOT be called
 
     const guard = freshGuard();
+    const events: string[] = [];
+    const unsubscribe = subscribeToFusionProgress((event) => {
+      if (event.sessionID === SESSION_ID) {
+        events.push(event.stage);
+      }
+    });
 
     // WHEN runFusionPipeline is called
     const result = await runFusionPipeline(
@@ -264,6 +299,8 @@ describe("runFusionPipeline", () => {
       originalModel,
       guard,
     );
+
+    unsubscribe();
 
     // THEN status is "degraded"
     expect(result.status).toBe("degraded");
@@ -285,6 +322,14 @@ describe("runFusionPipeline", () => {
 
     // THEN recursion guard is cleaned up
     expect(guard.isFusionActive(SESSION_ID)).toBe(false);
+    expect(events).toEqual([
+      "fan-out",
+      "panelist",
+      "panelist",
+      "panelist",
+      "judging",
+      "degraded",
+    ]);
   });
 
   // -----------------------------------------------------------------------
@@ -300,10 +345,21 @@ describe("runFusionPipeline", () => {
       errorPanelResult("google", "gemini-1.5-flash", "Model unavailable"),
     ];
 
-    mockFanOut.mockResolvedValue(panelResults);
+    mockFanOut.mockImplementation(async (_client, _sessionID, _prompt, _models, _config, options) => {
+      for (const result of panelResults) {
+        options?.onPanelistDone?.(result);
+      }
+      return panelResults;
+    });
     // runJudge and synthesize should NOT be called
 
     const guard = freshGuard();
+    const events: string[] = [];
+    const unsubscribe = subscribeToFusionProgress((event) => {
+      if (event.sessionID === SESSION_ID) {
+        events.push(event.stage);
+      }
+    });
 
     // WHEN runFusionPipeline is called
     const result = await runFusionPipeline(
@@ -314,6 +370,8 @@ describe("runFusionPipeline", () => {
       originalModel,
       guard,
     );
+
+    unsubscribe();
 
     // THEN status is "error"
     expect(result.status).toBe("error");
@@ -343,6 +401,13 @@ describe("runFusionPipeline", () => {
 
     // THEN recursion guard is cleaned up
     expect(guard.isFusionActive(SESSION_ID)).toBe(false);
+    expect(events).toEqual([
+      "fan-out",
+      "panelist",
+      "panelist",
+      "panelist",
+      "error",
+    ]);
   });
 
   // -----------------------------------------------------------------------

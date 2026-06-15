@@ -10,6 +10,7 @@ import { runJudge, type JudgeClient } from "./judge";
 import { synthesize, type SynthesizerClient, type OriginalModel } from "./synthesizer";
 import { CostTracker } from "./cost-tracker";
 import { RecursionGuard } from "./recursion-guard";
+import { emitFusionProgress } from "../progress-bus";
 
 // ---------------------------------------------------------------------------
 // Pipeline client — loosely typed, compatible with all sub-modules
@@ -76,12 +77,28 @@ export async function runFusionPipeline(
     // ---------------------------------------------------------------------
     // Step 3: fanOut — parallel panelist execution
     // ---------------------------------------------------------------------
+    emitFusionProgress({
+      sessionID,
+      stage: "fan-out",
+      detail: `Querying ${config.panel.models.length} panel models...`,
+    });
+
     const panelResults = await fanOut(
       client as unknown as OrchestratorClient,
       sessionID,
       prompt,
       config.panel.models,
       config,
+      {
+        onPanelistDone: (result) => {
+          const status = result.error ? "failed" : "completed";
+          emitFusionProgress({
+            sessionID,
+            stage: "panelist",
+            detail: `${result.providerId}/${result.modelId} ${status}.`,
+          });
+        },
+      },
     );
 
     // Track panelist costs from returned token counts
@@ -112,6 +129,12 @@ export async function runFusionPipeline(
 
       const summary = costTracker.getSummary();
 
+      emitFusionProgress({
+        sessionID,
+        stage: "error",
+        detail: "All panel models failed.",
+      });
+
       return {
         status: "error",
         responses: panelResults,
@@ -128,6 +151,12 @@ export async function runFusionPipeline(
     // ---------------------------------------------------------------------
     // Step 4: Any panelists succeeded → run judge
     // ---------------------------------------------------------------------
+    emitFusionProgress({
+      sessionID,
+      stage: "judging",
+      detail: `Evaluating ${successful.length} panel responses...`,
+    });
+
     const judgeOutput = await runJudge(
       client as unknown as JudgeClient,
       sessionID,
@@ -151,6 +180,12 @@ export async function runFusionPipeline(
 
       const summary = costTracker.getSummary();
 
+      emitFusionProgress({
+        sessionID,
+        stage: "degraded",
+        detail: "Judge failed — showing panel responses without synthesis.",
+      });
+
       return {
         status: "degraded",
         responses: panelResults,
@@ -166,6 +201,12 @@ export async function runFusionPipeline(
     // ---------------------------------------------------------------------
     // Step 5: Judge succeeded → synthesize final answer
     // ---------------------------------------------------------------------
+    emitFusionProgress({
+      sessionID,
+      stage: "synthesis",
+      detail: "Synthesizing the final answer...",
+    });
+
     const synthesizedAnswer = await synthesize(
       client as unknown as SynthesizerClient,
       sessionID,
@@ -187,6 +228,12 @@ export async function runFusionPipeline(
     // Step 9: Build FusionResult (happy path)
     // ---------------------------------------------------------------------
     const summary = costTracker.getSummary();
+
+    emitFusionProgress({
+      sessionID,
+      stage: "complete",
+      detail: `Fusion complete. Estimated cost: $${summary.estimatedCost.toFixed(4)}`,
+    });
 
     const failedModels: FailedModel[] | undefined =
       failed.length > 0
@@ -212,6 +259,12 @@ export async function runFusionPipeline(
     recursionGuard.markFusionComplete(sessionID);
 
     const summary = costTracker.getSummary();
+
+    emitFusionProgress({
+      sessionID,
+      stage: "error",
+      detail: err instanceof Error ? err.message : String(err),
+    });
 
     return {
       status: "error",

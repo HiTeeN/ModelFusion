@@ -294,4 +294,21 @@ describe("fanOut", () => {
     // THEN an empty array is returned, no calls were made
     expect(results).toEqual([]);
   });
+
+  test("progress callback errors do not corrupt successful panel results", async () => {
+    const { client } = mockHappyClient(threeModels);
+    const config = makeConfig(threeModels);
+
+    const results = await fanOut(client, SESSION_ID, TEST_PROMPT, threeModels, config, {
+      onPanelistDone: () => {
+        throw new Error("toast failed");
+      },
+    });
+
+    expect(results).toHaveLength(3);
+    for (const result of results) {
+      expect(result.error).toBeUndefined();
+      expect(result.content).toBeTruthy();
+    }
+  });
 });

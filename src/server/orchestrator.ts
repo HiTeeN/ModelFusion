@@ -34,9 +34,13 @@ export interface FanOutOptions {
   timeoutMs?: number;
   /** Number of retries for transient failures. Default: 1. */
   retries?: number;
+  /** Called whenever a panelist settles, success or error. */
+  onPanelistDone?: (result: PanelResult) => void;
 }
 
-const DEFAULT_FANOUT_OPTIONS: Required<FanOutOptions> = {
+const DEFAULT_FANOUT_OPTIONS: Required<
+  Pick<FanOutOptions, "timeoutMs" | "retries">
+> = {
   timeoutMs: 120_000,
   retries: 1,
 };
@@ -104,6 +108,17 @@ async function callPanelistWithRetry(
   throw lastError;
 }
 
+function notifyPanelistDone(
+  onPanelistDone: ((result: PanelResult) => void) | undefined,
+  result: PanelResult,
+): void {
+  try {
+    onPanelistDone?.(result);
+  } catch {
+    // Progress reporting must never change the underlying panel result.
+  }
+}
+
 // ---------------------------------------------------------------------------
 // fanOut — parallel panelist execution
 // ---------------------------------------------------------------------------
@@ -129,6 +144,7 @@ export async function fanOut(
 ): Promise<PanelResult[]> {
   const timeoutMs = options?.timeoutMs ?? DEFAULT_FANOUT_OPTIONS.timeoutMs;
   const maxRetries = options?.retries ?? DEFAULT_FANOUT_OPTIONS.retries;
+  const onPanelistDone = options?.onPanelistDone;
   const sanitizedPrompt = prompt.trim();
 
   const startTimes = new Map<string, number>();
@@ -159,20 +175,23 @@ export async function fanOut(
           completion: response.info.tokens.output,
         };
 
-        return {
+        const result: PanelResult = {
           modelId: model.modelId,
           providerId: model.providerId,
           content,
           tokenCount,
           latencyMs,
         };
+
+        notifyPanelistDone(onPanelistDone, result);
+        return result;
       })
       .catch((err: unknown): PanelResult => {
         const latencyMs = Date.now() - (startTimes.get(key) ?? 0);
         const message =
           err instanceof Error ? err.message : String(err);
 
-        return {
+        const result: PanelResult = {
           modelId: model.modelId,
           providerId: model.providerId,
           content: "",
@@ -180,6 +199,9 @@ export async function fanOut(
           latencyMs,
           error: message,
         };
+
+        notifyPanelistDone(onPanelistDone, result);
+        return result;
       });
   });
 
