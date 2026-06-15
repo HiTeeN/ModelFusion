@@ -1,4 +1,5 @@
-import type { TuiPluginApi } from "@opencode-ai/plugin/tui";
+import type { TuiPluginApi, TuiCommand } from "@opencode-ai/plugin/tui";
+import { registerTuiCommands } from "./command-registration";
 import {
   FusionConfigSchema,
   DEFAULT_FUSION_CONFIG,
@@ -318,39 +319,37 @@ export function handleConfigInput(
 // ---------------------------------------------------------------------------
 
 export function createConfigUI(api: TuiPluginApi): void {
-  api.keymap.registerLayer({
-    commands: [
-      {
-        name: "fusion:config",
-        title: "Fusion: Configuration",
-        desc:
-          "View and edit multi-model fusion configuration — manage " +
-          "panel models, judge, and triggering mode.",
-        category: "fusion",
-        namespace: "palette",
-        slashName: "fusion:config",
-        slashAliases: ["config", "fusion-config"],
-        run: async () => {
-          const currentConfig = loadConfig(api.kv);
-          const dialog = api.ui.dialog;
+  const configCommand: TuiCommand = {
+    title: "Fusion: Configuration",
+    value: "fusion:config",
+    description:
+      "View and edit multi-model fusion configuration — manage " +
+      "panel models, judge, and triggering mode.",
+    category: "fusion",
+    slash: {
+      name: "fusion:config",
+      aliases: ["config", "fusion-config"],
+    },
+    onSelect: async () => {
+      const currentConfig = loadConfig(api.kv);
+      const dialog = api.ui.dialog;
 
-          dialog.replace(() =>
-            api.ui.DialogPrompt({
-              title: "Fusion Configuration",
-              description: () => formatConfigPrompt(currentConfig),
-              placeholder: "panel add openai gpt-4o-mini",
-              onConfirm: (value: string) => {
-                dialog.clear();
-                handleConfigInput(api, value.trim());
-              },
-              onCancel: () => {
-                dialog.clear();
-              },
-            }),
-          );
-        },
-      },
-    ],
-    bindings: [],
-  });
+      dialog.replace(() =>
+        api.ui.DialogPrompt({
+          title: "Fusion Configuration",
+          description: () => formatConfigPrompt(currentConfig),
+          placeholder: "panel add openai gpt-4o-mini",
+          onConfirm: (value: string) => {
+            dialog.clear();
+            handleConfigInput(api, value.trim());
+          },
+          onCancel: () => {
+            dialog.clear();
+          },
+        }),
+      );
+    },
+  };
+
+  registerTuiCommands(api, [configCommand]);
 }

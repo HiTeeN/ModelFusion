@@ -145,21 +145,21 @@ describe("createConfigUI", () => {
     const api = mockApi();
     createConfigUI(api);
 
-    expect(api.keymap.registerLayer).toHaveBeenCalledTimes(1);
+    expect(api.command?.register).toHaveBeenCalledTimes(1);
 
-    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
-      .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
+    const commands = (api.command?.register as ReturnType<typeof mock>)
+      .mock.calls[0][0]() as TuiCommand[];
 
-    expect(layer.commands).toHaveLength(1);
+    expect(commands).toHaveLength(1);
 
-    const cmd = layer.commands[0];
+    const cmd = commands[0];
     expect(cmd.title).toContain("Fusion");
     expect(cmd.title).toContain("Configuration");
-    expect(cmd.name).toBe("fusion:config");
+    expect(cmd.value).toBe("fusion:config");
     expect(cmd.category).toBe("fusion");
-    expect(cmd.slashName).toBe("fusion:config");
-    expect((cmd.slashAliases as string[])).toContain("config");
-    expect(typeof cmd.run).toBe("function");
+    expect(cmd.slash?.name).toBe("fusion:config");
+    expect((cmd.slash?.aliases as string[])).toContain("config");
+    expect(typeof cmd.onSelect).toBe("function");
   });
 
   // GIVEN a config command without a dialog context
@@ -170,10 +170,10 @@ describe("createConfigUI", () => {
 
     createConfigUI(api);
 
-    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
-      .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
+    const commands = (api.command?.register as ReturnType<typeof mock>)
+      .mock.calls[0][0]() as TuiCommand[];
 
-    const cmd = layer.commands[0];
+    const cmd = commands[0];
 
     api.ui.dialog = mockDialogStack({
       replace: mock((renderFn: () => unknown) => {
@@ -190,7 +190,7 @@ describe("createConfigUI", () => {
       }),
     }) as TuiPluginApi["ui"]["dialog"];
 
-    await (cmd.run as () => Promise<void>)();
+    await cmd.onSelect?.();
 
     expect(api.ui.dialog.replace).toHaveBeenCalled();
     expect(api.ui.toast).toHaveBeenCalled();
@@ -210,10 +210,10 @@ describe("createConfigUI", () => {
 
     createConfigUI(api);
 
-    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
-      .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
+    const commands = (api.command?.register as ReturnType<typeof mock>)
+      .mock.calls[0][0]() as TuiCommand[];
 
-    const cmd = layer.commands[0];
+    const cmd = commands[0];
 
     const dialogInput = "panel add openai gpt-4-turbo";
     api.ui.dialog = mockDialogStack({
@@ -231,7 +231,7 @@ describe("createConfigUI", () => {
       }),
     }) as TuiPluginApi["ui"]["dialog"];
 
-    await (cmd.run as () => Promise<void>)();
+    await cmd.onSelect?.();
 
     const stored = api.kv.get("fusion.config") as FusionConfig;
     const added = stored.panel.models.find(
@@ -266,10 +266,10 @@ describe("createConfigUI", () => {
 
     createConfigUI(api);
 
-    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
-      .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
+    const commands = (api.command?.register as ReturnType<typeof mock>)
+      .mock.calls[0][0]() as TuiCommand[];
 
-    const cmd = layer.commands[0];
+    const cmd = commands[0];
 
     const dialogInput = "panel remove gpt-4o-mini";
     api.ui.dialog = mockDialogStack({
@@ -287,7 +287,7 @@ describe("createConfigUI", () => {
       }),
     }) as TuiPluginApi["ui"]["dialog"];
 
-    await (cmd.run as () => Promise<void>)();
+    await cmd.onSelect?.();
 
     const stored = api.kv.get("fusion.config") as FusionConfig;
     const removed = stored.panel.models.find(
@@ -312,10 +312,10 @@ describe("createConfigUI", () => {
 
     createConfigUI(api);
 
-    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
-      .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
+    const commands = (api.command?.register as ReturnType<typeof mock>)
+      .mock.calls[0][0]() as TuiCommand[];
 
-    const cmd = layer.commands[0];
+    const cmd = commands[0];
 
     const dialogInput = "judge anthropic claude-3-opus";
     api.ui.dialog = mockDialogStack({
@@ -333,7 +333,7 @@ describe("createConfigUI", () => {
       }),
     }) as TuiPluginApi["ui"]["dialog"];
 
-    await (cmd.run as () => Promise<void>)();
+    await cmd.onSelect?.();
 
     const stored = api.kv.get("fusion.config") as FusionConfig;
     expect(stored.judge.providerId).toBe("anthropic");
@@ -348,10 +348,10 @@ describe("createConfigUI", () => {
 
     createConfigUI(api);
 
-    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
-      .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
+    const commands = (api.command?.register as ReturnType<typeof mock>)
+      .mock.calls[0][0]() as TuiCommand[];
 
-    const cmd = layer.commands[0];
+    const cmd = commands[0];
 
     const dialogInput = "mode auto";
     api.ui.dialog = mockDialogStack({
@@ -369,7 +369,7 @@ describe("createConfigUI", () => {
       }),
     }) as TuiPluginApi["ui"]["dialog"];
 
-    await (cmd.run as () => Promise<void>)();
+    await cmd.onSelect?.();
 
     const stored = api.kv.get("fusion.config") as FusionConfig;
     expect(stored.triggering).toBe("auto");
@@ -383,10 +383,10 @@ describe("createConfigUI", () => {
 
     createConfigUI(api);
 
-    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
-      .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
+    const commands = (api.command?.register as ReturnType<typeof mock>)
+      .mock.calls[0][0]() as TuiCommand[];
 
-    const cmd = layer.commands[0];
+    const cmd = commands[0];
 
     const dialogInput = "mode blarg";
     api.ui.dialog = mockDialogStack({
@@ -404,7 +404,7 @@ describe("createConfigUI", () => {
       }),
     }) as TuiPluginApi["ui"]["dialog"];
 
-    await (cmd.run as () => Promise<void>)();
+    await cmd.onSelect?.();
 
     const toastCalls = (api.ui.toast as ReturnType<typeof mock>).mock.calls;
     const errorToast = toastCalls.find(
@@ -425,10 +425,10 @@ describe("createConfigUI", () => {
 
     createConfigUI(api);
 
-    const layer = (api.keymap.registerLayer as ReturnType<typeof mock>)
-      .mock.calls[0][0] as { commands: Array<Record<string, unknown>> };
+    const commands = (api.command?.register as ReturnType<typeof mock>)
+      .mock.calls[0][0]() as TuiCommand[];
 
-    const cmd = layer.commands[0];
+    const cmd = commands[0];
 
     api.ui.dialog = mockDialogStack({
       replace: mock((renderFn: () => unknown) => {
@@ -445,7 +445,7 @@ describe("createConfigUI", () => {
       }),
     }) as TuiPluginApi["ui"]["dialog"];
 
-    await (cmd.run as () => Promise<void>)();
+    await cmd.onSelect?.();
 
     const stored = api.kv.get("fusion.config") as FusionConfig;
     expect(stored.panel.models).toHaveLength(
