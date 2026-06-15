@@ -234,6 +234,29 @@ await api.client.session.prompt({
 
 The server `chat.message` hook treats `variant === "fusion:manual"` as an explicit trigger, even when `config.triggering === "manual"`. If you remove that variant path, `/fusion` stops being a reliable manual trigger.
 
+### Progress Updates Must Come From Real Pipeline Events
+
+Do not reintroduce fake progress in `src/tui/commands.ts` with hardcoded UI timing like chained `setTimeout(...toast...)` calls.
+
+Current behavior:
+
+```typescript
+// TUI side
+const unsubscribe = subscribeToFusionProgress((event) => {
+  if (event.sessionID !== sessionID) return;
+  notifier.notifyStage(event.stage, event.detail);
+});
+
+// Server side
+emitFusionProgress({ sessionID, stage: "judging", detail: "..." });
+```
+
+If you change progress behavior, preserve these invariants:
+
+- `/fusion` only shows progress for its own `sessionID`
+- terminal stages (`complete`, `degraded`, `error`) unsubscribe the listener
+- progress callback failures must never corrupt `fanOut()` or pipeline results
+
 ### File Naming
 
 | Type | Convention | Example |

@@ -27,7 +27,7 @@ Current state, planned improvements, and long-term vision for the ModelFusion pl
 - Graceful degradation: judge failure, partial panel failure, all-panel failure, recursion guard
 - Cost tracking with 3 pricing tiers (budget, standard, premium)
 - Recursion guard (single-level, prevents nested fusion)
-- Toast-based progress notifications at each pipeline stage
+- Real pipeline-driven toast-based progress notifications at each pipeline stage
 - Provider/model discovery and validation
 - Error hardening: per-panelist timeout (120s), retry logic (1 retry), JSON repair (3 strategies), input sanitization
 - Loose typing throughout — no SDK coupling
@@ -37,7 +37,6 @@ Current state, planned improvements, and long-term vision for the ModelFusion pl
 
 - Judge and synthesis token counts not captured from API responses (tracked as 0)
 - Config persistence uses TUI plugin KV — not persisted to opencode.json
-- TUI progress toasts use fixed `setTimeout` durations (not actual pipeline events)
 - No web search or web fetch augmentation
 - No multi-turn deliberation
 - No code merge workflows
@@ -59,11 +58,6 @@ Current state, planned improvements, and long-term vision for the ModelFusion pl
   - Current: `as unknown as Hooks` cast needed because of zod v4 vs SDK zod v1 mismatch
   - Fix: Either align zod versions or add a proper adapter layer
   - Impact: Cleaner type safety at the plugin boundary
-
-- **Streaming progress for panel responses**
-  - Current: Users see nothing until all panelists complete
-  - Fix: Stream each panelist's response as it arrives
-  - Impact: Better UX for long-running deliberations
 
 - **Config persistence to opencode.json**
   - Current: Config stored in TUI plugin KV only
