@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { FusionPlugin } from "./index";
+import pluginModule, { FusionPlugin, server } from "./index";
 import type { PluginInput } from "@opencode-ai/plugin";
 import { DEFAULT_FUSION_CONFIG } from "../types/config";
 
@@ -24,6 +24,8 @@ describe("FusionPlugin", () => {
   // -----------------------------------------------------------------------
   test("is a function", () => {
     expect(typeof FusionPlugin).toBe("function");
+    expect(typeof server).toBe("function");
+    expect(pluginModule.server).toBe(server);
   });
 
   // -----------------------------------------------------------------------

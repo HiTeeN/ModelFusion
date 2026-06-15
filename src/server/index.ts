@@ -136,3 +136,9 @@ export const FusionPlugin: Plugin = async (ctx, options?) => {
     event: createEventHook(pluginState),
   } as unknown as import("@opencode-ai/plugin").Hooks;
 };
+
+export const server = FusionPlugin;
+
+export default {
+  server,
+};

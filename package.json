@@ -8,6 +8,11 @@
     "test:integration": "bun test --isolate '*integration*'",
     "build": "tsc --noEmit"
   },
+  "exports": {
+    ".": "./src/server/index.ts",
+    "./tui": "./src/tui/index.ts",
+    "./server": "./src/server/index.ts"
+  },
   "dependencies": {
     "@opencode-ai/plugin": "^1.17.6",
     "@opencode-ai/sdk": "^1.17.6",
