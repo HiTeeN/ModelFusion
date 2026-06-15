@@ -204,6 +204,36 @@ export function createChatMessageHook(
 }
 ```
 
+### Plugin Module Entry Shape
+
+OpenCode does not just need a correctly typed function. It loads plugin entrypoints as module objects:
+
+```typescript
+// src/server/index.ts
+export const server = FusionPlugin;
+export default { server };
+
+// src/tui/index.ts
+export const tui = FusionTuiPlugin;
+export default { tui };
+```
+
+Keep the legacy named exports (`FusionPlugin`, `FusionTuiPlugin`) for direct imports and tests, but do not remove the default `{ server }` / `{ tui }` module shape.
+
+### `/fusion` Must Force Manual Deliberation
+
+The `/fusion` TUI command is not a plain chat prompt. It must send:
+
+```typescript
+await api.client.session.prompt({
+  sessionID,
+  variant: "fusion:manual",
+  parts: [{ type: "text", text: question }],
+});
+```
+
+The server `chat.message` hook treats `variant === "fusion:manual"` as an explicit trigger, even when `config.triggering === "manual"`. If you remove that variant path, `/fusion` stops being a reliable manual trigger.
+
 ### File Naming
 
 | Type | Convention | Example |
@@ -342,6 +372,8 @@ api.keymap.registerLayer({
   bindings: [],
 });
 ```
+
+`src/tui/index.ts` currently registers the main deliberation command via `createFusionCommand(api)` and the configuration command via `createConfigUI(api)`. Do not replace them with inline placeholder commands.
 
 ### mock() Return Type in bun:test
 

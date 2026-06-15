@@ -22,6 +22,7 @@ Current state, planned improvements, and long-term vision for the ModelFusion pl
 - 3 triggering modes: manual, auto, threshold
 - Structured JSON judge output with 6 analysis sections (consensus, contradictions, partial coverage, unique insights, blind spots, scoring)
 - TUI plugin with `/fusion` slash command (aliases: `/deliberate`, `/panel`)
+- `/fusion` explicit manual trigger path via `variant: "fusion:manual"`
 - Config UI with `/fusion:config` command for runtime configuration editing
 - Graceful degradation: judge failure, partial panel failure, all-panel failure, recursion guard
 - Cost tracking with 3 pricing tiers (budget, standard, premium)
