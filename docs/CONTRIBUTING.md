@@ -374,27 +374,27 @@ return {
 
 `argumentHint` is a non-standard extension to `TuiCommand`. It works in OpenCode's TUI but is not part of the official `@opencode-ai/plugin/tui` type. If tests or the runtime complain, it may need to be added as a type assertion.
 
-### TUI Commands Use api.keymap.registerLayer
+### TUI Commands Prefer the Host Command Shim
 
-In v1.17.6, TUI commands are registered via `api.keymap.registerLayer` instead of the old `api.command` API:
+In the current runtime, the safest plugin path is to author commands in the host `TuiCommand` shape and register them through `api.command?.register(...)` when that compatibility shim exists. ModelFusion keeps a fallback converter to `api.keymap.registerLayer(...)`, but the host command shim is the primary path.
 
 ```typescript
-api.keymap.registerLayer({
-  commands: [
-    {
-      name: "fusion:deliberate",
-      title: "Fusion: Deliberate",
-      desc: "...",
-      category: "fusion",
-      namespace: "palette",
-      slashName: "fusion",
-      slashAliases: ["deliberate", "panel"],
-      run: async () => { /* ... */ },
-    },
-  ],
-  bindings: [],
-});
+const command: TuiCommand = {
+  title: "Fusion: Deliberate",
+  value: "fusion:deliberate",
+  description: "...",
+  category: "fusion",
+  slash: {
+    name: "fusion",
+    aliases: ["deliberate", "panel"],
+  },
+  onSelect: async () => { /* ... */ },
+};
+
+api.command?.register(() => [command]);
 ```
+
+If the shim is unavailable, convert the command into the keymap-layer shape the runtime expects (`name`, `title`, `desc`, `namespace`, `slashName`, `slashAliases`, `run`).
 
 `src/tui/index.ts` currently registers the main deliberation command via `createFusionCommand(api)` and the configuration command via `createConfigUI(api)`. Do not replace them with inline placeholder commands.
 
