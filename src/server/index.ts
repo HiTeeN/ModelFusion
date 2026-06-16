@@ -20,6 +20,7 @@ import {
 } from "./hooks/tool-execute.js";
 import { createEventHook } from "./hooks/event.js";
 import { createCommandExecuteBeforeHook } from "./hooks/command-execute.js";
+import { createConfigHook } from "./hooks/config.js";
 
 // ---------------------------------------------------------------------------
 // FusionPlugin — main plugin entry point
@@ -86,6 +87,11 @@ export const FusionPlugin: Plugin = async (ctx, options?) => {
   };
 
   return {
+    // -----------------------------------------------------------------------
+    // config — publish host-visible fusion command definitions
+    // -----------------------------------------------------------------------
+    config: createConfigHook(),
+
     // -----------------------------------------------------------------------
     // chat.message — intercept incoming user messages to trigger fusion
     // -----------------------------------------------------------------------

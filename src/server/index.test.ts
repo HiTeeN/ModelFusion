@@ -32,7 +32,8 @@ describe("FusionPlugin", () => {
   test("returns a Hooks object with all required keys", async () => {
     const hooks = await FusionPlugin(mockPluginInput());
 
-    // All 9 required hook keys present (bracket access — dots in key names)
+    // All 10 required hook keys present (bracket access — dots in key names)
+    expect(hooks.config).toBeDefined();
     expect(hooks["chat.message"]).toBeDefined();
     expect(hooks["chat.params"]).toBeDefined();
     expect(hooks["experimental.chat.messages.transform"]).toBeDefined();
@@ -44,6 +45,7 @@ describe("FusionPlugin", () => {
     expect(hooks.event).toBeDefined();
 
     // Each hook is a function where expected
+    expect(typeof hooks.config).toBe("function");
     expect(typeof hooks["chat.message"]).toBe("function");
     expect(typeof hooks["chat.params"]).toBe("function");
     expect(typeof hooks["experimental.chat.messages.transform"]).toBe("function");
@@ -73,6 +75,7 @@ describe("FusionPlugin", () => {
     const hooks = await FusionPlugin(mockPluginInput(), { panel: null });
 
     // Plugin returns hooks (didn't crash)
+    expect(hooks.config).toBeDefined();
     expect(hooks["chat.message"]).toBeDefined();
     expect(hooks["chat.params"]).toBeDefined();
     expect(hooks["experimental.chat.messages.transform"]).toBeDefined();
@@ -93,6 +96,19 @@ describe("FusionPlugin", () => {
   });
 
   // -----------------------------------------------------------------------
+  test("config hook registers fusion commands", async () => {
+    const hooks = await FusionPlugin(mockPluginInput());
+    const config: Record<string, unknown> = {};
+
+    await hooks.config!(config as any);
+
+    const commands = config.command as Record<string, { template: string }>;
+    expect(commands.fusion).toBeDefined();
+    expect(commands.fusion.template).toBe("/fusion $ARGUMENTS");
+    expect(commands["fusion:config"]).toBeDefined();
+  });
+
+  // -----------------------------------------------------------------------
   test("hooks are callable (placeholders execute without error)", async () => {
     const hooks = await FusionPlugin(mockPluginInput());
 
@@ -102,6 +118,10 @@ describe("FusionPlugin", () => {
         message: {},
         parts: [],
       } as any),
+    ).resolves.toBeUndefined();
+
+    await expect(
+      hooks.config!({} as any),
     ).resolves.toBeUndefined();
 
     await expect(
