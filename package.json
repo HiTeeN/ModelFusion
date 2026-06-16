@@ -6,13 +6,26 @@
   "scripts": {
     "test": "bun test --isolate",
     "test:integration": "bun test --isolate '*integration*'",
-    "build": "tsc --noEmit"
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
   },
   "exports": {
-    ".": "./src/server/index.ts",
-    "./tui": "./src/tui/index.ts",
-    "./server": "./src/server/index.ts"
+    ".": {
+      "import": "./dist/server/index.js",
+      "types": "./dist/server/index.d.ts"
+    },
+    "./tui": {
+      "import": "./dist/tui/index.js",
+      "types": "./dist/tui/index.d.ts"
+    },
+    "./server": {
+      "import": "./dist/server/index.js",
+      "types": "./dist/server/index.d.ts"
+    }
   },
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@opencode-ai/plugin": "^1.17.6",
     "@opencode-ai/sdk": "^1.17.6",
