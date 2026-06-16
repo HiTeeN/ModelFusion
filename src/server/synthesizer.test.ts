@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import type { JudgeOutput, PanelResult } from "../types/results";
-import type { FusionConfig } from "../types/config";
-import { synthesize, type SynthesizerClient, type OriginalModel } from "./synthesizer";
+import type { JudgeOutput, PanelResult } from "../types/results.js";
+import type { FusionConfig } from "../types/config.js";
+import { synthesize, type SynthesizerClient, type OriginalModel } from "./synthesizer.js";
 
 // ---------------------------------------------------------------------------
 // Test fixtures

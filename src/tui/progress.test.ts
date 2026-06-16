@@ -1,10 +1,10 @@
 import { describe, expect, test, mock } from "bun:test";
-import { FusionProgressNotifier } from "./progress";
+import { FusionProgressNotifier } from "./progress.js";
 import {
   emitFusionProgress,
   getFusionProgressListenerCount,
   subscribeToFusionProgress,
-} from "../progress-bus";
+} from "../progress-bus.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

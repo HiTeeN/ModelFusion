@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { RecursionGuard } from "./recursion-guard";
+import { RecursionGuard } from "./recursion-guard.js";
 
 describe("RecursionGuard", () => {
   // GIVEN a fresh guard and a session ID

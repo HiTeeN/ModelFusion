@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { JUDGE_OUTPUT_SCHEMA } from "./schema";
+import { JUDGE_OUTPUT_SCHEMA } from "./schema.js";
 
 function typeMatchesSchema(value: unknown, schemaDef: Record<string, unknown>): boolean {
   const expectedType = schemaDef.type as string;

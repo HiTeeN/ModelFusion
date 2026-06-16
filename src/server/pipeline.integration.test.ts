@@ -1,9 +1,9 @@
 import { describe, expect, test, mock } from "bun:test";
-import type { FusionConfig, PanelModel } from "../types/config";
-import type { PanelResult, JudgeOutput, FusionResult } from "../types/results";
-import { RecursionGuard } from "./recursion-guard";
-import type { OriginalModel } from "./synthesizer";
-import { subscribeToFusionProgress } from "../progress-bus";
+import type { FusionConfig, PanelModel } from "../types/config.js";
+import type { PanelResult, JudgeOutput, FusionResult } from "../types/results.js";
+import { RecursionGuard } from "./recursion-guard.js";
+import type { OriginalModel } from "./synthesizer.js";
+import { subscribeToFusionProgress } from "../progress-bus.js";
 
 // ---------------------------------------------------------------------------
 // Mock modules — replace all sub-module imports used by pipeline.ts
@@ -52,7 +52,7 @@ mock.module("./cost-tracker", () => ({
 // Import pipeline AFTER mocks are registered
 // ---------------------------------------------------------------------------
 
-import { runFusionPipeline, type PipelineClient } from "./pipeline";
+import { runFusionPipeline, type PipelineClient } from "./pipeline.js";
 
 // ---------------------------------------------------------------------------
 // Shared fixtures

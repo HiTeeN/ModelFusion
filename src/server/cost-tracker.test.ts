@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { CostTracker, estimateCost } from "./cost-tracker";
+import { CostTracker, estimateCost } from "./cost-tracker.js";
 
 describe("CostTracker", () => {
   test("trackPanelist accumulates per-model entries for multiple models", () => {

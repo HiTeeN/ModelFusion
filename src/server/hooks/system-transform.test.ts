@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { createSystemTransformHook } from "./system-transform";
-import type { FusionConfig } from "../../types/config";
+import { createSystemTransformHook } from "./system-transform.js";
+import type { FusionConfig } from "../../types/config.js";
 import type { Model } from "@opencode-ai/sdk";
 
 // ---------------------------------------------------------------------------

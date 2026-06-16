@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import type { PanelModel } from "../types/config";
+import type { PanelModel } from "../types/config.js";
 import {
   discoverAvailableModels,
   resolveModel,
   type AvailableModel,
   type ProviderClient,
-} from "./providers";
-import { validatePanelModels } from "./providers";
+} from "./providers.js";
+import { validatePanelModels } from "./providers.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { createMessagesTransformHook } from "./messages-transform";
-import type { FusionResult, JudgeOutput } from "../../types/results";
+import { createMessagesTransformHook } from "./messages-transform.js";
+import type { FusionResult, JudgeOutput } from "../../types/results.js";
 import type { Message, Part } from "@opencode-ai/sdk";
 
 // ---------------------------------------------------------------------------

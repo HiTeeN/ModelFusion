@@ -1,7 +1,7 @@
 import { describe, expect, test, beforeEach, mock } from "bun:test";
-import { createChatParamsHook, type ChatParamsPluginState } from "./chat-params";
-import type { FusionConfig } from "../../types/config";
-import type { RecursionGuard } from "../recursion-guard";
+import { createChatParamsHook, type ChatParamsPluginState } from "./chat-params.js";
+import type { FusionConfig } from "../../types/config.js";
+import type { RecursionGuard } from "../recursion-guard.js";
 import type { Model, UserMessage } from "@opencode-ai/sdk";
 import type { ProviderContext } from "@opencode-ai/plugin";
 

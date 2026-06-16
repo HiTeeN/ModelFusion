@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { createEventHook, type EventHookInput } from "./event";
-import { RecursionGuard } from "../recursion-guard";
-import { CostTracker } from "../cost-tracker";
+import { createEventHook, type EventHookInput } from "./event.js";
+import { RecursionGuard } from "../recursion-guard.js";
+import { CostTracker } from "../cost-tracker.js";
 
 describe("createEventHook", () => {
   // GIVEN a fresh plugin state with RecursionGuard and CostTracker

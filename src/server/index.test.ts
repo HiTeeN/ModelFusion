@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import pluginModule, { FusionPlugin, server } from "./index";
+import pluginModule, { FusionPlugin, server } from "./index.js";
 import type { PluginInput } from "@opencode-ai/plugin";
-import { DEFAULT_FUSION_CONFIG } from "../types/config";
+import { DEFAULT_FUSION_CONFIG } from "../types/config.js";
 
 // ---------------------------------------------------------------------------
 // Test fixtures

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { FusionConfigSchema, DEFAULT_FUSION_CONFIG } from "./config";
+import { FusionConfigSchema, DEFAULT_FUSION_CONFIG } from "./config.js";
 
 describe("FusionConfigSchema", () => {
   test("valid minimal config — panel with 1 model, judge, manual triggering", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import type { PanelModel, FusionConfig } from "../types/config";
-import { fanOut, type OrchestratorClient, type PromptResponse } from "./orchestrator";
+import type { PanelModel, FusionConfig } from "../types/config.js";
+import { fanOut, type OrchestratorClient, type PromptResponse } from "./orchestrator.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -8,9 +8,9 @@ import {
   handleConfigInput,
   formatConfigForDisplay,
   saveConfig,
-} from "./config";
+} from "./config.js";
 import type { TuiPluginApi, TuiCommand } from "@opencode-ai/plugin/tui";
-import { DEFAULT_FUSION_CONFIG, type FusionConfig } from "../types/config";
+import { DEFAULT_FUSION_CONFIG, type FusionConfig } from "../types/config.js";
 
 // ---------------------------------------------------------------------------
 // Mock TuiPluginApi factory

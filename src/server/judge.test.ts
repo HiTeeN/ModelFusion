@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import type { FusionConfig, PanelModel } from "../types/config";
-import type { JudgeOutput, PanelResult } from "../types/results";
-import { runJudge, type JudgeClient } from "./judge";
+import type { FusionConfig, PanelModel } from "../types/config.js";
+import type { JudgeOutput, PanelResult } from "../types/results.js";
+import { runJudge, type JudgeClient } from "./judge.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

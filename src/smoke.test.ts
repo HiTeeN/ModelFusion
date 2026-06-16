@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import pkg from "../package.json";
-import type { FusionConfig } from "./types/config";
+import type { FusionConfig } from "./types/config.js";
 import type { Plugin } from "@opencode-ai/plugin";
 import { createOpencodeClient } from "@opencode-ai/sdk";
 

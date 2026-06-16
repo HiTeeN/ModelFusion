@@ -1,8 +1,8 @@
 import { describe, expect, test, mock } from "bun:test";
-import type { PanelModel, FusionConfig } from "../types/config";
-import type { JudgeOutput, PanelResult } from "../types/results";
-import { fanOut, type OrchestratorClient, type PromptResponse } from "./orchestrator";
-import { runJudge, sanitizeConfigValue, type JudgeClient } from "./judge";
+import type { PanelModel, FusionConfig } from "../types/config.js";
+import type { JudgeOutput, PanelResult } from "../types/results.js";
+import { fanOut, type OrchestratorClient, type PromptResponse } from "./orchestrator.js";
+import { runJudge, sanitizeConfigValue, type JudgeClient } from "./judge.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

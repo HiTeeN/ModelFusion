@@ -1,5 +1,5 @@
 import { describe, expect, test, mock } from "bun:test";
-import pluginModule, { FusionTuiPlugin, tui } from "./index";
+import pluginModule, { FusionTuiPlugin, tui } from "./index.js";
 import type { TuiPluginApi, TuiCommand } from "@opencode-ai/plugin/tui";
 
 // ---------------------------------------------------------------------------

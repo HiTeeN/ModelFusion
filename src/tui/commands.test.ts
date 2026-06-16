@@ -1,10 +1,10 @@
 import { describe, expect, test, mock } from "bun:test";
-import { createFusionCommand } from "./commands";
+import { createFusionCommand } from "./commands.js";
 import type { TuiPluginApi } from "@opencode-ai/plugin/tui";
 import {
   emitFusionProgress,
   getFusionProgressListenerCount,
-} from "../progress-bus";
+} from "../progress-bus.js";
 
 function mockApi(overrides: Partial<TuiPluginApi> = {}): TuiPluginApi {
   const store = new Map<string, unknown>();

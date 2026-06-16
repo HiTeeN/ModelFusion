@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { createFusionTool } from "./tool-registration";
-import type { FusionResult } from "../../types/results";
-import type { PipelineClient } from "../pipeline";
-import type { FusionConfig } from "../../types/config";
-import { RecursionGuard } from "../recursion-guard";
-import type { OriginalModel } from "../synthesizer";
+import { createFusionTool } from "./tool-registration.js";
+import type { FusionResult } from "../../types/results.js";
+import type { PipelineClient } from "../pipeline.js";
+import type { FusionConfig } from "../../types/config.js";
+import { RecursionGuard } from "../recursion-guard.js";
+import type { OriginalModel } from "../synthesizer.js";
 import type { ToolContext } from "@opencode-ai/plugin/tool";
 
 describe("createFusionTool", () => {

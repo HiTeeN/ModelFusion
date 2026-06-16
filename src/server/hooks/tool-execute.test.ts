@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { RecursionGuard } from "../recursion-guard";
+import { RecursionGuard } from "../recursion-guard.js";
 import {
   createToolExecuteBeforeHook,
   createToolExecuteAfterHook,
@@ -8,8 +8,8 @@ import {
   type ToolExecuteAfterInput,
   type ToolExecuteAfterOutput,
   type ToolExecutePluginState,
-} from "./tool-execute";
-import type { FusionResult } from "../../types/results";
+} from "./tool-execute.js";
+import type { FusionResult } from "../../types/results.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

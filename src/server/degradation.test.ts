@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import type { FusionResult, PanelResult, FailedModel } from "../types/results";
-import { handleDegradation, getDegradationMessage } from "./degradation";
+import type { FusionResult, PanelResult, FailedModel } from "../types/results.js";
+import { handleDegradation, getDegradationMessage } from "./degradation.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

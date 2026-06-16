@@ -1,8 +1,8 @@
 import { describe, expect, test, mock } from "bun:test";
-import type { FusionConfig } from "./types/config";
-import type { PanelResult, JudgeOutput, FusionResult } from "./types/results";
-import { RecursionGuard } from "./server/recursion-guard";
-import type { OriginalModel } from "./server/synthesizer";
+import type { FusionConfig } from "./types/config.js";
+import type { PanelResult, JudgeOutput, FusionResult } from "./types/results.js";
+import { RecursionGuard } from "./server/recursion-guard.js";
+import type { OriginalModel } from "./server/synthesizer.js";
 import type { TuiPluginApi } from "@opencode-ai/plugin/tui";
 
 // ===========================================================================
@@ -52,8 +52,8 @@ mock.module("./server/cost-tracker", () => ({
 // Import pipeline and hooks AFTER mocks are registered
 // ===========================================================================
 
-import { runFusionPipeline, type PipelineClient } from "./server/pipeline";
-import { createChatMessageHook, type ChatMessagePluginState } from "./server/hooks/chat-message";
+import { runFusionPipeline, type PipelineClient } from "./server/pipeline.js";
+import { createChatMessageHook, type ChatMessagePluginState } from "./server/hooks/chat-message.js";
 
 // ===========================================================================
 // Shared fixtures
