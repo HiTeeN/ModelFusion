@@ -1,5 +1,5 @@
-import type { PanelModel, FusionConfig } from "../types/config";
-import type { PanelResult, TokenCount } from "../types/results";
+import type { PanelModel, FusionConfig } from "../types/config.js";
+import type { PanelResult, TokenCount } from "../types/results.js";
 
 // ---------------------------------------------------------------------------
 // Client interface — loosely typed to avoid SDK coupling

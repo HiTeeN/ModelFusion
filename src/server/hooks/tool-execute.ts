@@ -7,9 +7,9 @@
  * - Pass through non-fusion tools unchanged
  */
 
-import type { RecursionGuard } from "../recursion-guard";
-import type { FusionResult } from "../../types/results";
-import { getDegradationMessage } from "../degradation";
+import type { RecursionGuard } from "../recursion-guard.js";
+import type { FusionResult } from "../../types/results.js";
+import { getDegradationMessage } from "../degradation.js";
 
 // ---------------------------------------------------------------------------
 // Plugin state passed to hook factories

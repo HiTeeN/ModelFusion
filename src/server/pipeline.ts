@@ -1,16 +1,16 @@
-import type { FusionConfig } from "../types/config";
+import type { FusionConfig } from "../types/config.js";
 import type {
   FusionResult,
   PanelResult,
   JudgeOutput,
   FailedModel,
-} from "../types/results";
-import { fanOut, type OrchestratorClient } from "./orchestrator";
-import { runJudge, type JudgeClient } from "./judge";
-import { synthesize, type SynthesizerClient, type OriginalModel } from "./synthesizer";
-import { CostTracker } from "./cost-tracker";
-import { RecursionGuard } from "./recursion-guard";
-import { emitFusionProgress } from "../progress-bus";
+} from "../types/results.js";
+import { fanOut, type OrchestratorClient } from "./orchestrator.js";
+import { runJudge, type JudgeClient } from "./judge.js";
+import { synthesize, type SynthesizerClient, type OriginalModel } from "./synthesizer.js";
+import { CostTracker } from "./cost-tracker.js";
+import { RecursionGuard } from "./recursion-guard.js";
+import { emitFusionProgress } from "../progress-bus.js";
 
 // ---------------------------------------------------------------------------
 // Pipeline client — loosely typed, compatible with all sub-modules

@@ -1,11 +1,11 @@
 import type { TuiPluginApi, TuiCommand } from "@opencode-ai/plugin/tui";
-import { registerTuiCommands } from "./command-registration";
+import { registerTuiCommands } from "./command-registration.js";
 import {
   FusionConfigSchema,
   DEFAULT_FUSION_CONFIG,
   PanelModelSchema,
   type FusionConfig,
-} from "../types/config";
+} from "../types/config.js";
 
 // ---------------------------------------------------------------------------
 // Config persistence helpers

@@ -3,7 +3,7 @@
 // enabled. Preserves existing system prompts by appending only.
 // ---------------------------------------------------------------------------
 
-import type { FusionConfig } from "../../types/config";
+import type { FusionConfig } from "../../types/config.js";
 import type { Model } from "@opencode-ai/sdk";
 
 // ---------------------------------------------------------------------------

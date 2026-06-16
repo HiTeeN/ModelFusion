@@ -3,22 +3,22 @@ import {
   FusionConfigSchema,
   DEFAULT_FUSION_CONFIG,
   type FusionConfig,
-} from "../types/config";
-import { RecursionGuard } from "./recursion-guard";
-import { CostTracker } from "./cost-tracker";
-import { runFusionPipeline, type PipelineClient } from "./pipeline";
-import type { OriginalModel } from "./synthesizer";
+} from "../types/config.js";
+import { RecursionGuard } from "./recursion-guard.js";
+import { CostTracker } from "./cost-tracker.js";
+import { runFusionPipeline, type PipelineClient } from "./pipeline.js";
+import type { OriginalModel } from "./synthesizer.js";
 
-import { createChatMessageHook } from "./hooks/chat-message";
-import { createChatParamsHook } from "./hooks/chat-params";
-import { createMessagesTransformHook } from "./hooks/messages-transform";
-import { createSystemTransformHook } from "./hooks/system-transform";
-import { createFusionTool } from "./hooks/tool-registration";
+import { createChatMessageHook } from "./hooks/chat-message.js";
+import { createChatParamsHook } from "./hooks/chat-params.js";
+import { createMessagesTransformHook } from "./hooks/messages-transform.js";
+import { createSystemTransformHook } from "./hooks/system-transform.js";
+import { createFusionTool } from "./hooks/tool-registration.js";
 import {
   createToolExecuteBeforeHook,
   createToolExecuteAfterHook,
-} from "./hooks/tool-execute";
-import { createEventHook } from "./hooks/event";
+} from "./hooks/tool-execute.js";
+import { createEventHook } from "./hooks/event.js";
 
 // ---------------------------------------------------------------------------
 // FusionPlugin — main plugin entry point

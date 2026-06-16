@@ -1,8 +1,8 @@
-import type { FusionConfig } from "../../types/config";
-import type { FusionResult } from "../../types/results";
-import { RecursionGuard } from "../recursion-guard";
-import { runFusionPipeline, type PipelineClient } from "../pipeline";
-import type { OriginalModel } from "../synthesizer";
+import type { FusionConfig } from "../../types/config.js";
+import type { FusionResult } from "../../types/results.js";
+import { RecursionGuard } from "../recursion-guard.js";
+import { runFusionPipeline, type PipelineClient } from "../pipeline.js";
+import type { OriginalModel } from "../synthesizer.js";
 import type { UserMessage, Part } from "@opencode-ai/sdk";
 
 const FUSION_MANUAL_VARIANT = "fusion:manual";

@@ -1,6 +1,6 @@
-import type { FusionConfig } from "../types/config";
-import type { JudgeOutput, PanelResult } from "../types/results";
-import { JUDGE_OUTPUT_SCHEMA } from "../types/schema";
+import type { FusionConfig } from "../types/config.js";
+import type { JudgeOutput, PanelResult } from "../types/results.js";
+import { JUDGE_OUTPUT_SCHEMA } from "../types/schema.js";
 
 // ---------------------------------------------------------------------------
 // Client type (loosely typed — only session.prompt is needed)

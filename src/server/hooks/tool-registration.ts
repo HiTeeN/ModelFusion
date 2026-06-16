@@ -1,9 +1,9 @@
 import { tool, type ToolDefinition } from "@opencode-ai/plugin/tool";
-import type { runFusionPipeline } from "../pipeline";
-import type { PipelineClient } from "../pipeline";
-import type { FusionConfig } from "../../types/config";
-import type { RecursionGuard } from "../recursion-guard";
-import type { OriginalModel } from "../synthesizer";
+import type { runFusionPipeline } from "../pipeline.js";
+import type { PipelineClient } from "../pipeline.js";
+import type { FusionConfig } from "../../types/config.js";
+import type { RecursionGuard } from "../recursion-guard.js";
+import type { OriginalModel } from "../synthesizer.js";
 
 export function createFusionTool(deps: {
   pipelineFn: typeof runFusionPipeline;

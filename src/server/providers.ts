@@ -1,4 +1,4 @@
-import type { PanelModel } from "../types/config";
+import type { PanelModel } from "../types/config.js";
 
 export interface ProviderClient {
   config: {

@@ -1,4 +1,4 @@
-import type { JudgeOutput } from "./results";
+import type { JudgeOutput } from "./results.js";
 
 /**
  * JSON Schema (draft-07) for the judge model's structured output.

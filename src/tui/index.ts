@@ -4,9 +4,9 @@ import type {
   TuiPluginApi,
   TuiPluginMeta,
 } from "@opencode-ai/plugin/tui";
-import { registerTuiCommands } from "./command-registration";
-import { createFusionCommand } from "./commands";
-import { createConfigUI } from "./config";
+import { registerTuiCommands } from "./command-registration.js";
+import { createFusionCommand } from "./commands.js";
+import { createConfigUI } from "./config.js";
 
 // ---------------------------------------------------------------------------
 // FusionTuiPlugin — TUI plugin entry point

@@ -2,8 +2,8 @@ import type { TuiPluginApi, TuiDialogStack, TuiCommand } from "@opencode-ai/plug
 import {
   subscribeToFusionProgress,
   type FusionProgressEvent,
-} from "../progress-bus";
-import { FusionProgressNotifier } from "./progress";
+} from "../progress-bus.js";
+import { FusionProgressNotifier } from "./progress.js";
 
 const FUSION_MANUAL_VARIANT = "fusion:manual";
 

@@ -13,9 +13,9 @@ export type {
   FailedModel,
   FusionCost,
   FusionResult,
-} from "./results";
+} from "./results.js";
 
-export type { PanelModel, FusionConfig } from "./config";
+export type { PanelModel, FusionConfig } from "./config.js";
 
 export {
   PanelModelSchema,
@@ -24,7 +24,7 @@ export {
   ThresholdConfigSchema,
   FusionConfigSchema,
   DEFAULT_FUSION_CONFIG,
-} from "./config";
+} from "./config.js";
 
-export { JUDGE_OUTPUT_SCHEMA } from "./schema";
-export type { JudgeOutputSchemaType } from "./schema";
+export { JUDGE_OUTPUT_SCHEMA } from "./schema.js";
+export type { JudgeOutputSchemaType } from "./schema.js";

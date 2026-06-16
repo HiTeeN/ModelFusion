@@ -3,8 +3,8 @@
 // Handles session.created, session.deleted, session.error; ignores all others.
 // ---------------------------------------------------------------------------
 
-import type { RecursionGuard } from "../recursion-guard";
-import type { CostTracker } from "../cost-tracker";
+import type { RecursionGuard } from "../recursion-guard.js";
+import type { CostTracker } from "../cost-tracker.js";
 
 // ---------------------------------------------------------------------------
 // Types

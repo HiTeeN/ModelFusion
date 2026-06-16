@@ -5,7 +5,7 @@
 // When no FusionResult exists, messages pass through unchanged.
 // ---------------------------------------------------------------------------
 
-import type { FusionResult, JudgeOutput } from "../../types/results";
+import type { FusionResult, JudgeOutput } from "../../types/results.js";
 import type { Message, Part } from "@opencode-ai/sdk";
 
 // ---------------------------------------------------------------------------

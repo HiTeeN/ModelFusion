@@ -1,5 +1,5 @@
-import type { JudgeOutput, PanelResult } from "../types/results";
-import type { FusionConfig } from "../types/config";
+import type { JudgeOutput, PanelResult } from "../types/results.js";
+import type { FusionConfig } from "../types/config.js";
 
 // ---------------------------------------------------------------------------
 // Client interface (loosely typed — matches opencode SDK session.prompt)

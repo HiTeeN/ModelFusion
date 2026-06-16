@@ -1,4 +1,4 @@
-import type { FusionResult } from "../types/results";
+import type { FusionResult } from "../types/results.js";
 
 // ---------------------------------------------------------------------------
 // handleDegradation — post-process pipeline results for graceful degradation
