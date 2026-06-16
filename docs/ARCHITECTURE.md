@@ -1,6 +1,6 @@
 # Architecture
 
-ModelFusion is a dual-plugin system (server + TUI) that enables multi-model deliberation within OpenCode. This document covers every component, how data flows through the system, how hooks are wired, the pipeline stages, degradation paths, and state management.
+ModelFusion is a server-first OpenCode plugin with an optional TUI enhancement layer. This document covers every component, how data flows through the system, how hooks are wired, the pipeline stages, degradation paths, and state management.
 
 ---
 
@@ -24,11 +24,12 @@ opencode runtime
 │   │   ├── CostTracker (src/server/cost-tracker.ts) ────────── token/cost accumulation
 │   │   └── RecursionGuard (src/server/recursion-guard.ts) ──── nested-call prevention
 │   │
-│   ├── Hooks (7 hook factories in src/server/hooks/)
+│   ├── Hooks (8 hook factories in src/server/hooks/)
 │   │   ├── createChatMessageHook        → chat.message
 │   │   ├── createChatParamsHook         → chat.params
 │   │   ├── createMessagesTransformHook  → experimental.chat.messages.transform
 │   │   ├── createSystemTransformHook    → experimental.chat.system.transform
+│   │   ├── createCommandExecuteBeforeHook → command.execute.before
 │   │   ├── createFusionTool             → tool["fusion:deliberate"]
 │   │   ├── createToolExecuteBeforeHook  → tool.execute.before
 │   │   ├── createToolExecuteAfterHook   → tool.execute.after
@@ -73,11 +74,22 @@ User prompt
      │
      ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│ 1. chat.message hook                                                │
+│ 1. command.execute.before hook                                      │
+│    (createCommandExecuteBeforeHook)                                 │
+│    ├─ Intercepts host-visible `/fusion` and `/fusion:config`        │
+│    ├─ `/fusion <question>` runs the fusion pipeline directly        │
+│    └─ `/fusion:config` returns formatted config text                │
+└──────────────────────────┬──────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ 1a. chat.message hook                                               │
 │    (createChatMessageHook)                                          │
 │    ├─ Manual mode:    pass through unless variant="fusion:manual"  │
 │    ├─ Auto mode:      always trigger                                │
 │    └─ Threshold mode: trigger if prompt > minPromptLength           │
+│    ├─ Plain `/fusion ...` text is detected and force-triggered      │
+│    ├─ Plain `/fusion:config` text returns config display            │
 │                       OR prompt contains any keyword                 │
 │    ┌─ RecursionGuard check: skip if fusion already active           │
 │    └─ On trigger: calls runFusionPipeline(...)                      │
@@ -85,7 +97,7 @@ User prompt
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│ 1a. Explicit TUI manual trigger                                     │
+│ 1b. Explicit TUI manual trigger                                     │
 │    (`/fusion` in src/tui/commands.ts)                               │
 │    ├─ Opens a dialog prompt for the question                        │
 │    ├─ Calls `api.client.session.prompt(...)`                        │
@@ -96,7 +108,7 @@ User prompt
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│ 1b. Progress event bridge                                           │
+│ 1c. Progress event bridge                                           │
 │    (`src/progress-bus.ts`)                                          │
 │    ├─ `runFusionPipeline()` emits real stage events                 │
 │    ├─ `fanOut()` emits per-panelist settlement callbacks           │
@@ -198,7 +210,8 @@ Each hook factory receives a subset of `pluginState` (structural typing). Here i
 
 | Hook Key | Factory | Receives From pluginState | Purpose |
 |---|---|---|---|
-| `chat.message` | `createChatMessageHook` | config, recursionGuard, pipeline, client | Intercept user messages, trigger fusion |
+| `command.execute.before` | `createCommandExecuteBeforeHook` | config, recursionGuard, pipeline, client | Intercept host-visible fusion commands |
+| `chat.message` | `createChatMessageHook` | config, recursionGuard, pipeline, client | Intercept user messages and slash-shaped prompt text, trigger fusion |
 | `chat.params` | `createChatParamsHook` | config, recursionGuard | Adjust temperature/maxOutputTokens for panelist calls |
 | `experimental.chat.messages.transform` | `createMessagesTransformHook` | fusionResult (separate param) | Inject fusion analysis summary + answer into history |
 | `experimental.chat.system.transform` | `createSystemTransformHook` | config | Inject deliberation prompt into system messages |

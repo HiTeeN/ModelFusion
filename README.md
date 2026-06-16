@@ -53,7 +53,7 @@ bun add @modelfusion/plugin
 }
 ```
 
-3. Restart OpenCode. The `/fusion` and `/fusion:config` commands should now be available in the TUI via the host command registry (`api.command.register` when present, with a keymap-layer fallback), and the `fusion:deliberate` tool will be registered with the server plugin using the `tool()` API.
+3. Restart OpenCode. The `fusion:deliberate` tool and the host-facing `/fusion` / `/fusion:config` command path are registered by the server plugin, so manual fusion remains reachable even when a TUI-only command layer is unavailable. When the TUI plugin is loaded, it also adds the richer slash-command UX (`api.command.register` when present, with a keymap-layer fallback).
 
 ### Local Development Install
 
@@ -63,7 +63,7 @@ This repo is now consumed through committed `dist/` artifacts rather than raw `s
 
 ### Server Plugin
 
-The server plugin (`@modelfusion/plugin/server`) registers the deliberation tool and lifecycle hooks. The module exports both a named `server` alias and a default module shape `{ server }` so OpenCode can load it directly. You can pass config options when creating the plugin:
+The server plugin (`@modelfusion/plugin/server`) is now the primary runtime surface. It registers the deliberation tool, lifecycle hooks, and host-facing command interception for `/fusion` and `/fusion:config`. The module exports both a named `server` alias and a default module shape `{ server }` so OpenCode can load it directly. You can pass config options when creating the plugin:
 
 ```json
 {
@@ -87,7 +87,7 @@ The server plugin (`@modelfusion/plugin/server`) registers the deliberation tool
 
 ### TUI Plugin
 
-The TUI plugin (`@modelfusion/plugin/tui`) is loaded automatically alongside the server plugin. The module exports both a named `tui` alias and a default module shape `{ tui }` so OpenCode can load it directly. It registers `/fusion`, `/deliberate`, `/panel`, and `/fusion:config` through `api.command.register(...)` when the host exposes it, with a `api.keymap.registerLayer(...)` fallback for older runtimes. No additional config needed.
+The TUI plugin (`@modelfusion/plugin/tui`) remains an optional UX layer. It exports both a named `tui` alias and a default module shape `{ tui }`, and when loaded it registers `/fusion`, `/deliberate`, `/panel`, and `/fusion:config` through `api.command.register(...)` with a `api.keymap.registerLayer(...)` fallback for older runtimes. Its job is richer prompting and progress toasts, not sole feature reachability.
 
 ### Version Compatibility
 
@@ -131,12 +131,12 @@ ModelFusion supports three triggering modes controlled by the `triggering` confi
 
 Deliberation only happens when you explicitly ask for it. This is the simplest and most predictable mode -- no surprises, no extra cost.
 
-**TUI:** Type `/fusion` followed by your question:
+**Command path:** Type `/fusion` followed by your question:
 ```
 /fusion What are the tradeoffs between SQL and NoSQL databases?
 ```
 
-The TUI command sends your question with `variant: "fusion:manual"`, which the server `chat.message` hook treats as an explicit fusion request. That means `/fusion` now forces the deliberation pipeline even when global `triggering` remains `manual`.
+If the host routes slash commands through `command.execute.before`, the server plugin executes fusion directly there. If the host delivers `/fusion ...` as plain chat text instead, the server `chat.message` hook detects that command-shaped prompt and forces the same pipeline. When the TUI plugin is present, it can still send `variant: "fusion:manual"` for the richer TUI UX path.
 
 **Chat:** Use the `fusion:deliberate` tool directly. The tool accepts no extra arguments -- it deliberates on the current conversation context.
 
@@ -176,7 +176,7 @@ During a deliberation, you'll see progress updates in the chat and TUI:
 [Synthesizer] After consulting the panel, here's a balanced view...
 ```
 
-`/fusion` progress is now driven by real pipeline events rather than fixed UI timers, so the TUI only advances when the underlying stage actually advances.
+`/fusion` progress is now driven by real pipeline events rather than fixed UI timers, so the TUI only advances when the underlying stage actually advances. Outside the TUI, the same server-side command path still works, but without toast-based progress UI.
 
 If a model's response is low quality, the judge rejects it and flags the issue. At least 2 valid responses must pass the judge for a synthesis to happen.
 

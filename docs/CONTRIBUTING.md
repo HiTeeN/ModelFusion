@@ -57,6 +57,15 @@ npm run typecheck
 
 Build must pass with 0 errors before any commit.
 
+### Local Research Material
+
+External reference material belongs under `.research/`, which is gitignored on purpose.
+
+- `.research/repos/oh-my-openagent/` — local clone used for architecture study
+- `.research/deepwiki/` — saved DeepWiki exports and notes
+
+Use that area for investigation and migration notes, but do not move research snapshots into tracked docs unless they become actual project documentation.
+
 ---
 
 ## Test
@@ -102,11 +111,13 @@ src/
 │   ├── degradation.ts                # Graceful degradation handler
 │   ├── recursion-guard.ts            # Recursion prevention (single-level)
 │   ├── providers.ts                  # Provider/model discovery
+│   ├── fusion-command.ts             # Server-side fusion command parsing/formatting helpers
 │   ├── error-handling.test.ts        # Error hardening tests
 │   ├── *.test.ts                     # Co-located unit tests
 │   └── hooks/
 │       ├── chat-message.ts           # chat.message hook factory
 │       ├── chat-params.ts            # chat.params hook factory
+│       ├── command-execute.ts        # command.execute.before factory
 │       ├── messages-transform.ts     # messages.transform hook factory
 │       ├── system-transform.ts       # system.transform hook factory
 │       ├── tool-registration.ts      # fusion:deliberate tool factory
@@ -227,6 +238,16 @@ export default { tui };
 ```
 
 Keep the legacy named exports (`FusionPlugin`, `FusionTuiPlugin`) for direct imports and tests, but do not remove the default `{ server }` / `{ tui }` module shape.
+
+### Server Plugin Owns Host-Facing `/fusion`
+
+ModelFusion now follows a server-first OpenCode pattern for command reachability.
+
+- `command.execute.before` handles host-visible `/fusion` and `/fusion:config`
+- `chat.message` also detects plain slash-shaped prompts like `/fusion compare X and Y`
+- the TUI plugin is an enhancement layer for prompts/progress, not the only way to reach fusion
+
+If you change command behavior, update the server hooks first and treat TUI registration as secondary UX.
 
 ### Runtime Import Paths Must Be ESM-Explicit
 
