@@ -120,6 +120,59 @@ describe("createChatMessageHook", () => {
     expect(output.parts).toEqual([textPart("Fused answer")]);
   });
 
+  test("GIVEN slash fusion prompt WHEN message arrives THEN pipeline is called in manual mode", async () => {
+    let receivedPrompt = "";
+    let callCount = 0;
+    const pipeline: ChatMessagePluginState["pipeline"] = (async (
+      _client,
+      _sessionID,
+      prompt,
+    ) => {
+      callCount += 1;
+      receivedPrompt = prompt;
+      return {
+        status: "ok",
+        responses: [],
+        cost: { totalPromptTokens: 0, totalCompletionTokens: 0, estimatedCost: 0 },
+        synthesizedAnswer: "Fused answer",
+      };
+    }) as ChatMessagePluginState["pipeline"];
+    const state = makePluginState({
+      config: makeConfig({ triggering: "manual" }),
+      pipeline,
+    });
+    const hook = createChatMessageHook(state);
+    const input = makeInput();
+    const output = makeOutput([textPart("/fusion Compare SQLite and DuckDB")]);
+
+    await hook(input, output);
+
+    expect(callCount).toBe(1);
+    expect(receivedPrompt).toBe("Compare SQLite and DuckDB");
+    expect(output.parts).toEqual([textPart("Fused answer")]);
+  });
+
+  test("GIVEN slash fusion config prompt WHEN message arrives THEN config text is returned", async () => {
+    const pipeline = mock(async () => ({
+      status: "ok",
+      responses: [],
+      cost: { totalPromptTokens: 0, totalCompletionTokens: 0, estimatedCost: 0 },
+      synthesizedAnswer: "Fused answer",
+    }));
+    const state = makePluginState({
+      config: makeConfig({ triggering: "manual" }),
+      pipeline: pipeline as unknown as ChatMessagePluginState["pipeline"],
+    });
+    const hook = createChatMessageHook(state);
+    const input = makeInput();
+    const output = makeOutput([textPart("/fusion:config")]);
+
+    await hook(input, output);
+
+    expect(pipeline).not.toHaveBeenCalled();
+    expect((output.parts[0] as Part & { text?: string })?.text).toContain("Current Fusion Configuration");
+  });
+
   // -----------------------------------------------------------------------
   // Test 2: Auto mode — pipeline called
   // -----------------------------------------------------------------------

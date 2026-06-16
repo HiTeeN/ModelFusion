@@ -32,11 +32,12 @@ describe("FusionPlugin", () => {
   test("returns a Hooks object with all required keys", async () => {
     const hooks = await FusionPlugin(mockPluginInput());
 
-    // All 8 required hook keys present (bracket access — dots in key names)
+    // All 9 required hook keys present (bracket access — dots in key names)
     expect(hooks["chat.message"]).toBeDefined();
     expect(hooks["chat.params"]).toBeDefined();
     expect(hooks["experimental.chat.messages.transform"]).toBeDefined();
     expect(hooks["experimental.chat.system.transform"]).toBeDefined();
+    expect(hooks["command.execute.before"]).toBeDefined();
     expect(hooks.tool).toBeDefined();
     expect(hooks["tool.execute.before"]).toBeDefined();
     expect(hooks["tool.execute.after"]).toBeDefined();
@@ -47,6 +48,7 @@ describe("FusionPlugin", () => {
     expect(typeof hooks["chat.params"]).toBe("function");
     expect(typeof hooks["experimental.chat.messages.transform"]).toBe("function");
     expect(typeof hooks["experimental.chat.system.transform"]).toBe("function");
+    expect(typeof hooks["command.execute.before"]).toBe("function");
     expect(typeof hooks["tool.execute.before"]).toBe("function");
     expect(typeof hooks["tool.execute.after"]).toBe("function");
     expect(typeof hooks.event).toBe("function");
@@ -75,6 +77,7 @@ describe("FusionPlugin", () => {
     expect(hooks["chat.params"]).toBeDefined();
     expect(hooks["experimental.chat.messages.transform"]).toBeDefined();
     expect(hooks["experimental.chat.system.transform"]).toBeDefined();
+    expect(hooks["command.execute.before"]).toBeDefined();
     expect(hooks.tool).toBeDefined();
     expect(hooks["tool.execute.before"]).toBeDefined();
     expect(hooks["tool.execute.after"]).toBeDefined();
@@ -99,6 +102,10 @@ describe("FusionPlugin", () => {
         message: {},
         parts: [],
       } as any),
+    ).resolves.toBeUndefined();
+
+    await expect(
+      hooks["command.execute.before"]!({ command: "fusion", sessionID: "s2", arguments: "test" } as any, { parts: [] } as any),
     ).resolves.toBeUndefined();
 
     await expect(

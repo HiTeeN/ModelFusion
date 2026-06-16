@@ -19,6 +19,7 @@ import {
   createToolExecuteAfterHook,
 } from "./hooks/tool-execute.js";
 import { createEventHook } from "./hooks/event.js";
+import { createCommandExecuteBeforeHook } from "./hooks/command-execute.js";
 
 // ---------------------------------------------------------------------------
 // FusionPlugin — main plugin entry point
@@ -124,6 +125,11 @@ export const FusionPlugin: Plugin = async (ctx, options?) => {
     // tool.execute.before — guard against recursive deliberation calls
     // -----------------------------------------------------------------------
     "tool.execute.before": createToolExecuteBeforeHook(pluginState),
+
+    // -----------------------------------------------------------------------
+    // command.execute.before — make /fusion host-visible outside TUI-only paths
+    // -----------------------------------------------------------------------
+    "command.execute.before": createCommandExecuteBeforeHook(pluginState),
 
     // -----------------------------------------------------------------------
     // tool.execute.after — format fusion results / update cost tracker
