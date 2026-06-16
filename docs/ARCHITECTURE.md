@@ -24,7 +24,8 @@ opencode runtime
 │   │   ├── CostTracker (src/server/cost-tracker.ts) ────────── token/cost accumulation
 │   │   └── RecursionGuard (src/server/recursion-guard.ts) ──── nested-call prevention
 │   │
-│   ├── Hooks (8 hook factories in src/server/hooks/)
+│   ├── Hooks (9 hook factories in src/server/hooks/)
+│   │   ├── createConfigHook             → config
 │   │   ├── createChatMessageHook        → chat.message
 │   │   ├── createChatParamsHook         → chat.params
 │   │   ├── createMessagesTransformHook  → experimental.chat.messages.transform
@@ -73,6 +74,15 @@ opencode runtime
 User prompt
      │
      ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ 0. config hook                                                      │
+│    (createConfigHook)                                               │
+│    ├─ Publishes command definitions into `config.command`           │
+│    ├─ Adds: fusion, deliberate, panel, fusion:config               │
+│    └─ Makes commands discoverable to the host command system        │
+└──────────────────────────┬──────────────────────────────────────────┘
+                           │
+                           ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │ 1. command.execute.before hook                                      │
 │    (createCommandExecuteBeforeHook)                                 │
@@ -210,6 +220,7 @@ Each hook factory receives a subset of `pluginState` (structural typing). Here i
 
 | Hook Key | Factory | Receives From pluginState | Purpose |
 |---|---|---|---|
+| `config` | `createConfigHook` | none | Publish fusion command definitions into host config |
 | `command.execute.before` | `createCommandExecuteBeforeHook` | config, recursionGuard, pipeline, client | Intercept host-visible fusion commands |
 | `chat.message` | `createChatMessageHook` | config, recursionGuard, pipeline, client | Intercept user messages and slash-shaped prompt text, trigger fusion |
 | `chat.params` | `createChatParamsHook` | config, recursionGuard | Adjust temperature/maxOutputTokens for panelist calls |

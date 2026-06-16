@@ -53,7 +53,7 @@ bun add @modelfusion/plugin
 }
 ```
 
-3. Restart OpenCode. The `fusion:deliberate` tool and the host-facing `/fusion` / `/fusion:config` command path are registered by the server plugin, so manual fusion remains reachable even when a TUI-only command layer is unavailable. When the TUI plugin is loaded, it also adds the richer slash-command UX (`api.command.register` when present, with a keymap-layer fallback).
+3. Restart OpenCode. The server plugin now publishes command definitions into OpenCode's `command` config surface and also handles those commands through server hooks, so `fusion`, `deliberate`, `panel`, and `fusion:config` are host-visible without depending on the TUI plugin. When the TUI plugin is loaded, it adds the richer prompt/progress UX on top of the same server-first flow.
 
 ### Local Development Install
 
@@ -63,7 +63,7 @@ This repo is now consumed through committed `dist/` artifacts rather than raw `s
 
 ### Server Plugin
 
-The server plugin (`@modelfusion/plugin/server`) is now the primary runtime surface. It registers the deliberation tool, lifecycle hooks, and host-facing command interception for `/fusion` and `/fusion:config`. The module exports both a named `server` alias and a default module shape `{ server }` so OpenCode can load it directly. You can pass config options when creating the plugin:
+The server plugin (`@modelfusion/plugin/server`) is now the primary runtime surface. It registers the deliberation tool, lifecycle hooks, command definitions through the `config` hook, and host-facing command interception for `/fusion` and `/fusion:config`. The module exports both a named `server` alias and a default module shape `{ server }` so OpenCode can load it directly. You can pass config options when creating the plugin:
 
 ```json
 {
@@ -136,7 +136,13 @@ Deliberation only happens when you explicitly ask for it. This is the simplest a
 /fusion What are the tradeoffs between SQL and NoSQL databases?
 ```
 
-If the host routes slash commands through `command.execute.before`, the server plugin executes fusion directly there. If the host delivers `/fusion ...` as plain chat text instead, the server `chat.message` hook detects that command-shaped prompt and forces the same pipeline. When the TUI plugin is present, it can still send `variant: "fusion:manual"` for the richer TUI UX path.
+The host-visible command path has three layers:
+
+- the server `config` hook publishes command definitions (`fusion`, `deliberate`, `panel`, `fusion:config`)
+- `command.execute.before` handles those commands directly when OpenCode executes them as commands
+- `chat.message` still catches plain slash-shaped prompt text like `/fusion ...` as a fallback path
+
+When the TUI plugin is present, it can still send `variant: "fusion:manual"` for the richer TUI UX path.
 
 **Chat:** Use the `fusion:deliberate` tool directly. The tool accepts no extra arguments -- it deliberates on the current conversation context.
 

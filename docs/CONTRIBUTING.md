@@ -111,12 +111,14 @@ src/
 │   ├── degradation.ts                # Graceful degradation handler
 │   ├── recursion-guard.ts            # Recursion prevention (single-level)
 │   ├── providers.ts                  # Provider/model discovery
+│   ├── command-definitions.ts        # Host-visible command definitions for config hook
 │   ├── fusion-command.ts             # Server-side fusion command parsing/formatting helpers
 │   ├── error-handling.test.ts        # Error hardening tests
 │   ├── *.test.ts                     # Co-located unit tests
 │   └── hooks/
 │       ├── chat-message.ts           # chat.message hook factory
 │       ├── chat-params.ts            # chat.params hook factory
+│       ├── config.ts                 # config hook factory (publishes commands)
 │       ├── command-execute.ts        # command.execute.before factory
 │       ├── messages-transform.ts     # messages.transform hook factory
 │       ├── system-transform.ts       # system.transform hook factory
@@ -244,6 +246,7 @@ Keep the legacy named exports (`FusionPlugin`, `FusionTuiPlugin`) for direct imp
 ModelFusion now follows a server-first OpenCode pattern for command reachability.
 
 - `command.execute.before` handles host-visible `/fusion` and `/fusion:config`
+- `config` publishes those commands into OpenCode's `command` registry first
 - `chat.message` also detects plain slash-shaped prompts like `/fusion compare X and Y`
 - the TUI plugin is an enhancement layer for prompts/progress, not the only way to reach fusion
 
