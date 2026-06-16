@@ -10,6 +10,7 @@ import { createFusionTool } from "./hooks/tool-registration.js";
 import { createToolExecuteBeforeHook, createToolExecuteAfterHook, } from "./hooks/tool-execute.js";
 import { createEventHook } from "./hooks/event.js";
 import { createCommandExecuteBeforeHook } from "./hooks/command-execute.js";
+import { createConfigHook } from "./hooks/config.js";
 // ---------------------------------------------------------------------------
 // FusionPlugin — main plugin entry point
 // ---------------------------------------------------------------------------
@@ -68,6 +69,10 @@ export const FusionPlugin = async (ctx, options) => {
         modelId: config.judge.modelId,
     };
     return {
+        // -----------------------------------------------------------------------
+        // config — publish host-visible fusion command definitions
+        // -----------------------------------------------------------------------
+        config: createConfigHook(),
         // -----------------------------------------------------------------------
         // chat.message — intercept incoming user messages to trigger fusion
         // -----------------------------------------------------------------------

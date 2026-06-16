@@ -26,7 +26,8 @@ describe("FusionPlugin", () => {
     // -----------------------------------------------------------------------
     test("returns a Hooks object with all required keys", async () => {
         const hooks = await FusionPlugin(mockPluginInput());
-        // All 9 required hook keys present (bracket access — dots in key names)
+        // All 10 required hook keys present (bracket access — dots in key names)
+        expect(hooks.config).toBeDefined();
         expect(hooks["chat.message"]).toBeDefined();
         expect(hooks["chat.params"]).toBeDefined();
         expect(hooks["experimental.chat.messages.transform"]).toBeDefined();
@@ -37,6 +38,7 @@ describe("FusionPlugin", () => {
         expect(hooks["tool.execute.after"]).toBeDefined();
         expect(hooks.event).toBeDefined();
         // Each hook is a function where expected
+        expect(typeof hooks.config).toBe("function");
         expect(typeof hooks["chat.message"]).toBe("function");
         expect(typeof hooks["chat.params"]).toBe("function");
         expect(typeof hooks["experimental.chat.messages.transform"]).toBe("function");
@@ -61,6 +63,7 @@ describe("FusionPlugin", () => {
     test("invalid config — uses defaults and does not crash", async () => {
         const hooks = await FusionPlugin(mockPluginInput(), { panel: null });
         // Plugin returns hooks (didn't crash)
+        expect(hooks.config).toBeDefined();
         expect(hooks["chat.message"]).toBeDefined();
         expect(hooks["chat.params"]).toBeDefined();
         expect(hooks["experimental.chat.messages.transform"]).toBeDefined();
@@ -78,6 +81,16 @@ describe("FusionPlugin", () => {
         expect(typeof hooks["chat.message"]).toBe("function");
     });
     // -----------------------------------------------------------------------
+    test("config hook registers fusion commands", async () => {
+        const hooks = await FusionPlugin(mockPluginInput());
+        const config = {};
+        await hooks.config(config);
+        const commands = config.command;
+        expect(commands.fusion).toBeDefined();
+        expect(commands.fusion.template).toBe("/fusion $ARGUMENTS");
+        expect(commands["fusion:config"]).toBeDefined();
+    });
+    // -----------------------------------------------------------------------
     test("hooks are callable (placeholders execute without error)", async () => {
         const hooks = await FusionPlugin(mockPluginInput());
         // Chat hooks — call with minimal valid input
@@ -85,6 +98,7 @@ describe("FusionPlugin", () => {
             message: {},
             parts: [],
         })).resolves.toBeUndefined();
+        await expect(hooks.config({})).resolves.toBeUndefined();
         await expect(hooks["command.execute.before"]({ command: "fusion", sessionID: "s2", arguments: "test" }, { parts: [] })).resolves.toBeUndefined();
         await expect(hooks["chat.params"]({ sessionID: "s2", agent: "a1" }, {})).resolves.toBeUndefined();
         // Transform hooks

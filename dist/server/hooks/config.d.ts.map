@@ -1,0 +1,1 @@
+{"version":3,"file":"config.d.ts","sourceRoot":"","sources":["../../../src/server/hooks/config.ts"],"names":[],"mappings":"AAEA,MAAM,WAAW,eAAe;IAC9B,OAAO,CAAC,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,CAAC;IAClC,CAAC,GAAG,EAAE,MAAM,GAAG,OAAO,CAAC;CACxB;AAED,wBAAgB,gBAAgB,IAAI,CAAC,KAAK,EAAE,eAAe,KAAK,OAAO,CAAC,IAAI,CAAC,CAY5E"}
