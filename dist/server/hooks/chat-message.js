@@ -1,3 +1,4 @@
+import { formatFusionConfigForDisplay, fusionResultToParts, invalidCommandMessageToParts, parseFusionPromptText, } from "../fusion-command.js";
 const FUSION_MANUAL_VARIANT = "fusion:manual";
 // ---------------------------------------------------------------------------
 // Helpers
@@ -50,15 +51,33 @@ function textPart(text) {
 export function createChatMessageHook(pluginState) {
     const { config, recursionGuard, pipeline, client } = pluginState;
     return async (input, output) => {
+        if (!config.enabled) {
+            return;
+        }
         // -----------------------------------------------------------------------
         // Step 1: Extract the prompt text from incoming parts
         // -----------------------------------------------------------------------
         const prompt = extractPrompt(output.parts);
+        const commandIntent = parseFusionPromptText(prompt);
+        if (commandIntent?.kind === "config") {
+            output.parts = [textPart(formatFusionConfigForDisplay(config))];
+            return;
+        }
+        if (commandIntent?.kind === "invalid") {
+            output.parts = invalidCommandMessageToParts(commandIntent.message);
+            return;
+        }
         // -----------------------------------------------------------------------
         // Step 2: Decide whether to trigger based on triggering mode
         // -----------------------------------------------------------------------
         let shouldTrigger = false;
+        const effectivePrompt = commandIntent?.kind === "fusion"
+            ? commandIntent.prompt
+            : prompt;
         if (input.variant === FUSION_MANUAL_VARIANT) {
+            shouldTrigger = true;
+        }
+        else if (commandIntent?.kind === "fusion") {
             shouldTrigger = true;
         }
         else {
@@ -74,7 +93,7 @@ export function createChatMessageHook(pluginState) {
                 case "threshold": {
                     // Threshold mode — check length and keywords
                     const threshold = config.threshold ?? { minPromptLength: 200, keywords: [] };
-                    shouldTrigger = meetsThreshold(prompt, threshold.minPromptLength, threshold.keywords);
+                    shouldTrigger = meetsThreshold(effectivePrompt, threshold.minPromptLength, threshold.keywords);
                     break;
                 }
             }
@@ -100,10 +119,14 @@ export function createChatMessageHook(pluginState) {
         // -----------------------------------------------------------------------
         // Step 6: Run the fusion pipeline
         // -----------------------------------------------------------------------
-        const result = await pipeline(client, input.sessionID, prompt, config, originalModel, recursionGuard);
+        const result = await pipeline(client, input.sessionID, effectivePrompt, config, originalModel, recursionGuard);
         // -----------------------------------------------------------------------
         // Step 7: Inject fusion results into the output
         // -----------------------------------------------------------------------
+        if (commandIntent?.kind === "fusion") {
+            output.parts = fusionResultToParts(result);
+            return;
+        }
         if (result.status === "ok" && result.synthesizedAnswer) {
             // Happy path — replace parts with the synthesized answer
             output.parts = [textPart(result.synthesizedAnswer)];
