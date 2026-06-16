@@ -1,0 +1,1 @@
+{"version":3,"file":"degradation.d.ts","sourceRoot":"","sources":["../../src/server/degradation.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,qBAAqB,CAAC;AAMxD;;;;;;;;;;;;;GAaG;AACH,wBAAgB,iBAAiB,CAC/B,MAAM,EAAE,YAAY,EACpB,qBAAqB,CAAC,EAAE,MAAM,GAC7B,YAAY,CA0Cd;AAMD;;;GAGG;AACH,wBAAgB,qBAAqB,CAAC,MAAM,EAAE,YAAY,GAAG,MAAM,CAmBlE"}
