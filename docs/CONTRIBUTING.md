@@ -45,7 +45,15 @@ bun install --fetch-timeout 120000
 bun run build
 ```
 
-Runs `tsc --noEmit` to type-check the entire project. No output files are generated (the plugin is loaded directly from source by the OpenCode runtime).
+Runs `tsc` and emits runtime-ready ESM artifacts into `dist/`.
+
+Those files are not optional for local `file:` installs. OpenCode loads this plugin through the package `exports` map, which now points at `dist/*.js` entrypoints. If you change runtime code under `src/`, rebuild before testing the linked install.
+
+Use this when you only want a compile check without refreshing `dist/`:
+
+```bash
+npm run typecheck
+```
 
 Build must pass with 0 errors before any commit.
 
@@ -219,6 +227,17 @@ export default { tui };
 ```
 
 Keep the legacy named exports (`FusionPlugin`, `FusionTuiPlugin`) for direct imports and tests, but do not remove the default `{ server }` / `{ tui }` module shape.
+
+### Runtime Import Paths Must Be ESM-Explicit
+
+This package is consumed by OpenCode through emitted `dist/*.js` files, not by importing raw TypeScript source. Keep internal relative imports ESM-explicit in `src/` so the emitted runtime stays loadable:
+
+```typescript
+import { runFusionPipeline } from "./pipeline.js";
+import { FusionConfigSchema } from "../types/config.js";
+```
+
+Do not add new extensionless relative imports like `./pipeline` or `../types/config`. They may type-check under TypeScript, but they break the native runtime loader used by linked plugin installs.
 
 ### `/fusion` Must Force Manual Deliberation
 

@@ -53,11 +53,13 @@ bun add @modelfusion/plugin
 }
 ```
 
-3. Restart OpenCode. The `/fusion` and `/fusion:config` commands should now be available in the TUI via `api.keymap.registerLayer`, and the `fusion:deliberate` tool will be registered with the server plugin using the `tool()` API.
+3. Restart OpenCode. The `/fusion` and `/fusion:config` commands should now be available in the TUI via the host command registry (`api.command.register` when present, with a keymap-layer fallback), and the `fusion:deliberate` tool will be registered with the server plugin using the `tool()` API.
 
 ### Local Development Install
 
 For a local `file:` install, the OpenCode config directory that loads the plugin must also resolve a compatible `@opencode-ai/plugin` runtime. In practice that means the config-local `package.json` should pin `@opencode-ai/plugin` to **1.17.7+** alongside `@modelfusion/plugin`.
+
+This repo is now consumed through committed `dist/` artifacts rather than raw `src/*.ts` entrypoints. If you change runtime code locally, run `npm run build` before testing the linked install so OpenCode sees the updated `dist/*.js` files.
 
 ### Server Plugin
 
@@ -85,13 +87,13 @@ The server plugin (`@modelfusion/plugin/server`) registers the deliberation tool
 
 ### TUI Plugin
 
-The TUI plugin (`@modelfusion/plugin/tui`) is loaded automatically alongside the server plugin. The module exports both a named `tui` alias and a default module shape `{ tui }` so OpenCode can load it directly. It registers `/fusion`, `/deliberate`, `/panel`, and `/fusion:config` via `api.keymap.registerLayer`. No additional config needed.
+The TUI plugin (`@modelfusion/plugin/tui`) is loaded automatically alongside the server plugin. The module exports both a named `tui` alias and a default module shape `{ tui }` so OpenCode can load it directly. It registers `/fusion`, `/deliberate`, `/panel`, and `/fusion:config` through `api.command.register(...)` when the host exposes it, with a `api.keymap.registerLayer(...)` fallback for older runtimes. No additional config needed.
 
 ### Version Compatibility
 
 | ModelFusion | OpenCode | API |
 |---|---|---|
-| 0.1.0+ | 1.17.7+ | v1.17.6 (`parts`-based messaging, `tool()` API, `keymap.registerLayer`) |
+| 0.1.0+ | 1.17.7+ | v1.17.6 (`parts`-based messaging, `tool()` API, host command registry + keymap fallback) |
 
 ## Configuration Reference
 
