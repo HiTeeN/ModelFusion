@@ -115,7 +115,7 @@ Controls when deliberation is triggered.
 
 | Value | Behavior |
 |---|---|
-| `"manual"` (default) | Deliberation only happens when explicitly invoked via `/fusion` or `fusion:deliberate` tool |
+| `"manual"` (default) | Deliberation only happens when explicitly invoked via `/fusion` or `fusion_deliberate` tool |
 | `"auto"` | Every user message triggers deliberation automatically |
 | `"threshold"` | Deliberation triggers when prompt length exceeds `minPromptLength` OR prompt contains any keyword |
 

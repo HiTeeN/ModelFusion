@@ -10,7 +10,7 @@ ModelFusion is a server-first OpenCode plugin with an optional TUI enhancement l
 opencode runtime
 │
 ├── Server Plugin (src/server/index.ts)
-│   ├── FusionPlugin / default { server } ───────────────────── Plugin entry point
+│   ├── FusionPlugin / default FusionPlugin ─────────────────── Plugin entry point
 │   │   ├── Config parser (FusionConfigSchema)
 │   │   ├── RecursionGuard (in-memory session state)
 │   │   ├── CostTracker (per-session accumulator)
@@ -31,7 +31,7 @@ opencode runtime
 │   │   ├── createMessagesTransformHook  → experimental.chat.messages.transform
 │   │   ├── createSystemTransformHook    → experimental.chat.system.transform
 │   │   ├── createCommandExecuteBeforeHook → command.execute.before
-│   │   ├── createFusionTool             → tool["fusion:deliberate"]
+│   │   ├── createFusionTool             → tool["fusion_deliberate"]
 │   │   ├── createToolExecuteBeforeHook  → tool.execute.before
 │   │   ├── createToolExecuteAfterHook   → tool.execute.after
 │   │   └── createEventHook              → event
@@ -50,7 +50,7 @@ opencode runtime
 │       └── sanitizePanelResults ────── control-char removal before judge prompt
 │
 ├── TUI Plugin (src/tui/index.ts)
-│   ├── FusionTuiPlugin / default { tui } ───────────────────── TUI entry point
+│   ├── FusionTuiPlugin / default FusionTuiPlugin ───────────── TUI entry point
 │   │   ├── api.kv state persistence (fusion.initialized, fusion.version)
 │   │   ├── /fusion slash command  (src/tui/commands.ts)
 │   │   ├── /fusion:config command (src/tui/config.ts)
@@ -226,7 +226,7 @@ Each hook factory receives a subset of `pluginState` (structural typing). Here i
 | `chat.params` | `createChatParamsHook` | config, recursionGuard | Adjust temperature/maxOutputTokens for panelist calls |
 | `experimental.chat.messages.transform` | `createMessagesTransformHook` | fusionResult (separate param) | Inject fusion analysis summary + answer into history |
 | `experimental.chat.system.transform` | `createSystemTransformHook` | config | Inject deliberation prompt into system messages |
-| `tool["fusion:deliberate"]` | `createFusionTool` | runFusionPipeline (function) | Register the fusion tool |
+| `tool["fusion_deliberate"]` | `createFusionTool` | runFusionPipeline (function) | Register the fusion tool |
 | `tool.execute.before` | `createToolExecuteBeforeHook` | recursionGuard | Validate args, guard recursion |
 | `tool.execute.after` | `createToolExecuteAfterHook` | recursionGuard, fusionResult | Format output, mark complete |
 | `event` | `createEventHook` | recursionGuard, costTracker | Session lifecycle management |
@@ -386,6 +386,6 @@ Each factory destructures only what it needs. Extra properties are ignored via s
 | `src/server/hooks/chat-params.ts` | `createChatParamsHook` | `chat.params` hook |
 | `src/server/hooks/messages-transform.ts` | `createMessagesTransformHook` | `experimental.chat.messages.transform` |
 | `src/server/hooks/system-transform.ts` | `createSystemTransformHook` | `experimental.chat.system.transform` |
-| `src/server/hooks/tool-registration.ts` | `createFusionTool` | `tool["fusion:deliberate"]` |
+| `src/server/hooks/tool-registration.ts` | `createFusionTool` | `tool["fusion_deliberate"]` |
 | `src/server/hooks/tool-execute.ts` | `createToolExecuteBeforeHook`, `createToolExecuteAfterHook` | `tool.execute.before`, `tool.execute.after` |
 | `src/server/hooks/event.ts` | `createEventHook` | `event` hook |

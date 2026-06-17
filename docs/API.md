@@ -21,7 +21,7 @@ import pluginModule, { server } from "@modelfusion/plugin/server";
 // pluginModule = { server }
 ```
 
-OpenCode loads the server entrypoint through the default module shape `{ server }`.
+OpenCode loads the server entrypoint through the default plugin function export.
 
 **Type**: `Plugin` (from `@opencode-ai/plugin`)
 
@@ -80,7 +80,7 @@ import pluginModule, { tui } from "@modelfusion/plugin/tui";
 // pluginModule = { tui }
 ```
 
-OpenCode loads the TUI entrypoint through the default module shape `{ tui }`.
+OpenCode loads the TUI entrypoint through the default TUI plugin function export.
 
 **Type**: `TuiPlugin` (from `@opencode-ai/plugin/tui`)
 
@@ -509,14 +509,14 @@ function createSystemTransformHook(
 
 **Deliberation Prompt**:
 ```
-You have access to a multi-model deliberation tool (fusion:deliberate). For complex questions, invoke it to get consensus, contradictions, unique insights, and blind spots from a panel of models. Use the analysis to write a better final answer with attribution.
+You have access to a multi-model deliberation tool (fusion_deliberate). For complex questions, invoke it to get consensus, contradictions, unique insights, and blind spots from a panel of models. Use the analysis to write a better final answer with attribution.
 ```
 
 ---
 
 ### createFusionTool
 
-Creates the `fusion:deliberate` tool definition using the `tool()` API from `@opencode-ai/plugin/tool`.
+Creates the `fusion_deliberate` tool definition using the `tool()` API from `@opencode-ai/plugin/tool`.
 
 ```typescript
 import { createFusionTool } from "./hooks/tool-registration";

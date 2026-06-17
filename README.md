@@ -57,13 +57,27 @@ bun add @modelfusion/plugin
 
 ### Local Development Install
 
-For a local `file:` install, the OpenCode config directory that loads the plugin must also resolve a compatible `@opencode-ai/plugin` runtime. In practice that means the config-local `package.json` should pin `@opencode-ai/plugin` to **1.17.7+** alongside `@modelfusion/plugin`.
+For local unpublished development, do **not** rely on a bare `"@modelfusion/plugin"` spec plus a config-local `package.json` dependency. OpenCode resolves plugin specs through its own loader, so the reliable local setup is a direct file URL to the project root in `opencode.json`:
 
-This repo is now consumed through committed `dist/` artifacts rather than raw `src/*.ts` entrypoints. If you change runtime code locally, run `npm run build` before testing the linked install so OpenCode sees the updated `dist/*.js` files.
+```json
+{
+  "plugin": [
+    "file:///absolute/path/to/ModelFusion"
+  ]
+}
+```
+
+If you test local runtime code, rebuild first so the package root points at fresh `dist/` artifacts:
+
+```bash
+npm run build
+```
+
+This repo is consumed through committed `dist/` artifacts rather than raw `src/*.ts` entrypoints. If you change runtime code locally, rebuild before testing so OpenCode sees the updated `dist/*.js` files.
 
 ### Server Plugin
 
-The server plugin (`@modelfusion/plugin/server`) is now the primary runtime surface. It registers the deliberation tool, lifecycle hooks, command definitions through the `config` hook, and host-facing command interception for `/fusion` and `/fusion:config`. The module exports both a named `server` alias and a default module shape `{ server }` so OpenCode can load it directly. You can pass config options when creating the plugin:
+The server plugin (`@modelfusion/plugin/server`) is now the primary runtime surface. It registers the deliberation tool, lifecycle hooks, command definitions through the `config` hook, and host-facing command interception for `/fusion` and `/fusion:config`. The module keeps a named `server` alias, but the default export is the plugin function itself so OpenCode can load it directly. You can pass config options when creating the plugin:
 
 ```json
 {
@@ -87,7 +101,7 @@ The server plugin (`@modelfusion/plugin/server`) is now the primary runtime surf
 
 ### TUI Plugin
 
-The TUI plugin (`@modelfusion/plugin/tui`) remains an optional UX layer. It exports both a named `tui` alias and a default module shape `{ tui }`, and when loaded it registers `/fusion`, `/deliberate`, `/panel`, and `/fusion:config` through `api.command.register(...)` with a `api.keymap.registerLayer(...)` fallback for older runtimes. Its job is richer prompting and progress toasts, not sole feature reachability.
+The TUI plugin (`@modelfusion/plugin/tui`) remains an optional UX layer. It keeps a named `tui` alias, but the default export is the TUI plugin function itself, and when loaded it registers `/fusion`, `/deliberate`, `/panel`, and `/fusion:config`. Its job is richer prompting and progress toasts, not sole feature reachability.
 
 ### Version Compatibility
 
@@ -144,7 +158,7 @@ The host-visible command path has three layers:
 
 When the TUI plugin is present, it can still send `variant: "fusion:manual"` for the richer TUI UX path.
 
-**Chat:** Use the `fusion:deliberate` tool directly. The tool accepts no extra arguments -- it deliberates on the current conversation context.
+**Chat:** Use the `fusion_deliberate` tool directly. The tool accepts no extra arguments -- it deliberates on the current conversation context.
 
 #### Auto Mode
 

@@ -122,7 +122,7 @@ src/
 │       ├── command-execute.ts        # command.execute.before factory
 │       ├── messages-transform.ts     # messages.transform hook factory
 │       ├── system-transform.ts       # system.transform hook factory
-│       ├── tool-registration.ts      # fusion:deliberate tool factory
+│       ├── tool-registration.ts      # fusion_deliberate tool factory
 │       ├── tool-execute.ts           # tool.execute.before/after factories
 │       ├── event.ts                  # event hook factory
 │       └── *.test.ts                 # Co-located unit tests
@@ -227,19 +227,19 @@ export function createChatMessageHook(
 
 ### Plugin Module Entry Shape
 
-OpenCode does not just need a correctly typed function. It loads plugin entrypoints as module objects:
+OpenCode needs directly loadable plugin entrypoint functions at runtime:
 
 ```typescript
 // src/server/index.ts
 export const server = FusionPlugin;
-export default { server };
+export default FusionPlugin;
 
 // src/tui/index.ts
 export const tui = FusionTuiPlugin;
-export default { tui };
+export default FusionTuiPlugin;
 ```
 
-Keep the legacy named exports (`FusionPlugin`, `FusionTuiPlugin`) for direct imports and tests, but do not remove the default `{ server }` / `{ tui }` module shape.
+Keep the legacy named exports (`FusionPlugin`, `FusionTuiPlugin`) for direct imports and tests.
 
 ### Server Plugin Owns Host-Facing `/fusion`
 
