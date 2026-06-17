@@ -11,7 +11,7 @@ import type { Model } from "@opencode-ai/sdk";
 // ---------------------------------------------------------------------------
 
 const DELIBERATION_PROMPT =
-  "You have access to a multi-model deliberation tool (fusion:deliberate). " +
+  "You have access to a multi-model deliberation tool (fusion_deliberate). " +
   "For complex questions, invoke it to get consensus, contradictions, unique " +
   "insights, and blind spots from a panel of models. Use the analysis to " +
   "write a better final answer with attribution.";

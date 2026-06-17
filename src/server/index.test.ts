@@ -25,7 +25,7 @@ describe("FusionPlugin", () => {
   test("is a function", () => {
     expect(typeof FusionPlugin).toBe("function");
     expect(typeof server).toBe("function");
-    expect(pluginModule.server).toBe(server);
+    expect(pluginModule).toBe(FusionPlugin);
   });
 
   // -----------------------------------------------------------------------
@@ -61,13 +61,13 @@ describe("FusionPlugin", () => {
   });
 
   // -----------------------------------------------------------------------
-  test("registers the fusion:deliberate tool", async () => {
+  test("registers the fusion_deliberate tool", async () => {
     const hooks = await FusionPlugin(mockPluginInput());
 
-    expect(hooks.tool).toHaveProperty("fusion:deliberate");
-    expect(hooks.tool!["fusion:deliberate"]).toHaveProperty("description");
-    expect(hooks.tool!["fusion:deliberate"]).toHaveProperty("args");
-    expect(typeof hooks.tool!["fusion:deliberate"].execute).toBe("function");
+    expect(hooks.tool).toHaveProperty("fusion_deliberate");
+    expect(hooks.tool!.fusion_deliberate).toHaveProperty("description");
+    expect(hooks.tool!.fusion_deliberate).toHaveProperty("args");
+    expect(typeof hooks.tool!.fusion_deliberate.execute).toBe("function");
   });
 
   // -----------------------------------------------------------------------
@@ -157,7 +157,7 @@ describe("FusionPlugin", () => {
 
     // Tool execution — resolves even without a valid pipeline client (pipeline catches errors)
     await expect(
-      hooks.tool!["fusion:deliberate"].execute({ prompt: "test" } as any, {} as any),
+      hooks.tool!.fusion_deliberate.execute({ prompt: "test" } as any, {} as any),
     ).resolves.toBeDefined();
   });
 });

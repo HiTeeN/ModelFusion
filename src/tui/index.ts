@@ -77,6 +77,4 @@ export const FusionTuiPlugin: TuiPlugin = async (
 
 export const tui = FusionTuiPlugin;
 
-export default {
-  tui,
-};
+export default FusionTuiPlugin;

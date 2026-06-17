@@ -52,7 +52,7 @@ describe("createSystemTransformHook", () => {
 
     expect(output.system).toHaveLength(2);
     expect(output.system[0]).toBe("You are a helpful assistant.");
-    expect(output.system[1]).toContain("fusion:deliberate");
+    expect(output.system[1]).toContain("fusion_deliberate");
     expect(output.system[1]).toContain("multi-model deliberation");
   });
 

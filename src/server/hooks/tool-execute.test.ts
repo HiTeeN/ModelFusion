@@ -59,7 +59,7 @@ function makeFusionResult(overrides: Partial<FusionResult> = {}): FusionResult {
 
 function makeBeforeInput(overrides: Partial<ToolExecuteBeforeInput> = {}): ToolExecuteBeforeInput {
   return {
-    tool: "fusion:deliberate",
+    tool: "fusion_deliberate",
     sessionID: "test-session",
     callID: "call-1",
     ...overrides,
@@ -75,7 +75,7 @@ function makeBeforeOutput(overrides: Partial<ToolExecuteBeforeOutput> = {}): Too
 
 function makeAfterInput(overrides: Partial<ToolExecuteAfterInput> = {}): ToolExecuteAfterInput {
   return {
-    tool: "fusion:deliberate",
+    tool: "fusion_deliberate",
     sessionID: "test-session",
     callID: "call-1",
     args: { prompt: "What is the best language for a CLI tool?" } as any,
@@ -97,7 +97,7 @@ function makeAfterOutput(overrides: Partial<ToolExecuteAfterOutput> = {}): ToolE
 // ---------------------------------------------------------------------------
 
 describe("createToolExecuteBeforeHook", () => {
-  test("fusion:deliberate — validates args, checks recursion, marks active", async () => {
+  test("fusion_deliberate — validates args, checks recursion, marks active", async () => {
     // GIVEN a fresh RecursionGuard and a before hook
     const guard = new RecursionGuard();
     const state: ToolExecutePluginState = { recursionGuard: guard };
@@ -106,7 +106,7 @@ describe("createToolExecuteBeforeHook", () => {
     const input = makeBeforeInput();
     const output = makeBeforeOutput();
 
-    // WHEN the hook runs for a fusion:deliberate call
+    // WHEN the hook runs for a fusion_deliberate call
     // THEN it completes without throwing (args valid, no active fusion)
     await hook(input, output);
 
@@ -114,7 +114,7 @@ describe("createToolExecuteBeforeHook", () => {
     expect(guard.isFusionActive("test-session")).toBe(true);
   });
 
-  test("fusion:deliberate — blocks nested fusion when already active", async () => {
+  test("fusion_deliberate — blocks nested fusion when already active", async () => {
     // GIVEN a RecursionGuard with an already-active fusion session
     const guard = new RecursionGuard();
     guard.markFusionActive("test-session");
@@ -124,14 +124,14 @@ describe("createToolExecuteBeforeHook", () => {
     const input = makeBeforeInput();
     const output = makeBeforeOutput();
 
-    // WHEN the hook runs for a second fusion:deliberate call in the same session
+    // WHEN the hook runs for a second fusion_deliberate call in the same session
     // THEN it throws to block nested fusion
     await expect(hook(input, output)).rejects.toThrow(
       "Fusion already running in this session",
     );
   });
 
-  test("fusion:deliberate — rejects missing prompt arg", async () => {
+  test("fusion_deliberate — rejects missing prompt arg", async () => {
     // GIVEN a fresh RecursionGuard and a before hook
     const guard = new RecursionGuard();
     const state: ToolExecutePluginState = { recursionGuard: guard };
@@ -143,11 +143,11 @@ describe("createToolExecuteBeforeHook", () => {
     // WHEN the hook runs with no prompt argument
     // THEN it throws a validation error
     await expect(hook(input, output)).rejects.toThrow(
-      "fusion:deliberate requires a non-empty 'prompt' argument",
+      "fusion_deliberate requires a non-empty 'prompt' argument",
     );
   });
 
-  test("fusion:deliberate — rejects empty prompt arg", async () => {
+  test("fusion_deliberate — rejects empty prompt arg", async () => {
     // GIVEN a fresh RecursionGuard and a before hook
     const guard = new RecursionGuard();
     const state: ToolExecutePluginState = { recursionGuard: guard };
@@ -159,7 +159,7 @@ describe("createToolExecuteBeforeHook", () => {
     // WHEN the hook runs with a whitespace-only prompt
     // THEN it throws a validation error
     await expect(hook(input, output)).rejects.toThrow(
-      "fusion:deliberate requires a non-empty 'prompt' argument",
+      "fusion_deliberate requires a non-empty 'prompt' argument",
     );
   });
 
@@ -189,7 +189,7 @@ describe("createToolExecuteBeforeHook", () => {
 // ---------------------------------------------------------------------------
 
 describe("createToolExecuteAfterHook", () => {
-  test("fusion:deliberate — formats output with analysis, answer, cost, marks complete", async () => {
+  test("fusion_deliberate — formats output with analysis, answer, cost, marks complete", async () => {
     // GIVEN an active fusion session and a fusion result
     const guard = new RecursionGuard();
     guard.markFusionActive("test-session");
@@ -200,7 +200,7 @@ describe("createToolExecuteAfterHook", () => {
     const input = makeAfterInput();
     const output = makeAfterOutput();
 
-    // WHEN the after hook runs for a fusion:deliberate call
+    // WHEN the after hook runs for a fusion_deliberate call
     await hook(input, output);
 
     // THEN fusion is marked complete
@@ -231,7 +231,7 @@ describe("createToolExecuteAfterHook", () => {
     expect(output.metadata.hasSynthesis).toBe(true);
   });
 
-  test("fusion:deliberate — includes degradation notice when degraded", async () => {
+  test("fusion_deliberate — includes degradation notice when degraded", async () => {
     // GIVEN a degraded fusion result (judge failed, no analysis)
     const guard = new RecursionGuard();
     guard.markFusionActive("test-session");
@@ -261,7 +261,7 @@ describe("createToolExecuteAfterHook", () => {
     expect(output.output).not.toContain("## Final Answer");
   });
 
-  test("fusion:deliberate — includes failed models section when present", async () => {
+  test("fusion_deliberate — includes failed models section when present", async () => {
     // GIVEN a fusion result with failed models
     const guard = new RecursionGuard();
     guard.markFusionActive("test-session");
@@ -285,7 +285,7 @@ describe("createToolExecuteAfterHook", () => {
     expect(output.output).toContain("API rate limit exceeded");
   });
 
-  test("fusion:deliberate — marks complete even without fusionResult", async () => {
+  test("fusion_deliberate — marks complete even without fusionResult", async () => {
     // GIVEN an active fusion session but NO fusion result
     const guard = new RecursionGuard();
     guard.markFusionActive("test-session");

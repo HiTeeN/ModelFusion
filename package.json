@@ -14,14 +14,8 @@
       "import": "./dist/server/index.js",
       "types": "./dist/server/index.d.ts"
     },
-    "./tui": {
-      "import": "./dist/tui/index.js",
-      "types": "./dist/tui/index.d.ts"
-    },
-    "./server": {
-      "import": "./dist/server/index.js",
-      "types": "./dist/server/index.d.ts"
-    }
+    "./tui": "./dist/tui/index.js",
+    "./server": "./dist/server/index.js"
   },
   "files": [
     "dist"

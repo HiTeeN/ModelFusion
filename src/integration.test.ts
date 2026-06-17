@@ -693,7 +693,7 @@ describe("ModelFusion Integration", () => {
       // GIVEN a command registration that exposes /fusion
       const fusionCommand = {
         title: "Fusion: Deliberate",
-        value: "fusion:deliberate",
+      value: "fusion:deliberate",
         description: "Multi-model deliberation",
         category: "fusion",
         slash: { name: "fusion", aliases: ["deliberate", "panel"] },
@@ -727,7 +727,7 @@ describe("ModelFusion Integration", () => {
       const commands = (api.command!.register as ReturnType<typeof mock>)
         .mock.calls[0][0]() as Array<typeof fusionCommand>;
 
-      const cmd = commands.find((c) => c.value === "fusion:deliberate");
+    const cmd = commands.find((c) => c.value === "fusion:deliberate");
       expect(cmd).toBeDefined();
       await cmd!.onSelect();
 
