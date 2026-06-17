@@ -94,7 +94,7 @@ describe("FusionTuiPlugin", () => {
     test("is a function", () => {
         expect(typeof FusionTuiPlugin).toBe("function");
         expect(typeof tui).toBe("function");
-        expect(pluginModule.tui).toBe(tui);
+        expect(pluginModule).toBe(FusionTuiPlugin);
     });
     test("registers the /fusion command via api.keymap.registerLayer", async () => {
         const api = mockApi();

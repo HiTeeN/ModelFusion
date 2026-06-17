@@ -16,7 +16,7 @@ import { createConfigHook } from "./hooks/config.js";
 // ---------------------------------------------------------------------------
 /**
  * Creates a ModelFusion plugin instance that enables multi-model deliberation
- * in OpenCode. When installed, the plugin registers the `fusion:deliberate`
+ * in OpenCode. When installed, the plugin registers the `fusion_deliberate`
  * tool and several lifecycle hooks that orchestrate panel discussions among
  * multiple AI models.
  *
@@ -92,10 +92,10 @@ export const FusionPlugin = async (ctx, options) => {
         // -----------------------------------------------------------------------
         "experimental.chat.system.transform": createSystemTransformHook({ config }),
         // -----------------------------------------------------------------------
-        // tool — register the fusion:deliberate tool backed by the pipeline
+        // tool — register the fusion_deliberate tool backed by the pipeline
         // -----------------------------------------------------------------------
         tool: {
-            "fusion:deliberate": createFusionTool({
+            fusion_deliberate: createFusionTool({
                 pipelineFn: runFusionPipeline,
                 client: pluginState.client,
                 config,
@@ -122,7 +122,5 @@ export const FusionPlugin = async (ctx, options) => {
     };
 };
 export const server = FusionPlugin;
-export default {
-    server,
-};
+export default FusionPlugin;
 //# sourceMappingURL=index.js.map

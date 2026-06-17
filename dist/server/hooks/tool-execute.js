@@ -11,7 +11,7 @@ import { getDegradationMessage } from "../degradation.js";
 // createToolExecuteBeforeHook
 // ---------------------------------------------------------------------------
 /**
- * Creates a tool.execute.before hook that intercepts fusion:deliberate calls.
+ * Creates a tool.execute.before hook that intercepts fusion_deliberate calls.
  *
  * For fusion tools:
  *   - Validates that required args are present
@@ -22,13 +22,13 @@ import { getDegradationMessage } from "../degradation.js";
  */
 export function createToolExecuteBeforeHook(pluginState) {
     return async (input, output) => {
-        // Only intercept fusion:deliberate
-        if (input.tool !== "fusion:deliberate") {
+        // Only intercept fusion_deliberate
+        if (input.tool !== "fusion_deliberate") {
             return;
         }
         // Validate required args
         if (!output.args || typeof output.args.prompt !== "string" || !output.args.prompt.trim()) {
-            throw new Error("fusion:deliberate requires a non-empty 'prompt' argument");
+            throw new Error("fusion_deliberate requires a non-empty 'prompt' argument");
         }
         // Check recursion guard — block nested fusion
         if (pluginState.recursionGuard.isFusionActive(input.sessionID)) {
@@ -45,7 +45,7 @@ export function createToolExecuteBeforeHook(pluginState) {
 // createToolExecuteAfterHook
 // ---------------------------------------------------------------------------
 /**
- * Creates a tool.execute.after hook that formats fusion:deliberate output.
+ * Creates a tool.execute.after hook that formats fusion_deliberate output.
  *
  * For fusion tools:
  *   - Formats output with analysis summary, final answer, cost, degradation notice
@@ -55,8 +55,8 @@ export function createToolExecuteBeforeHook(pluginState) {
  */
 export function createToolExecuteAfterHook(pluginState) {
     return async (input, output) => {
-        // Only intercept fusion:deliberate
-        if (input.tool !== "fusion:deliberate") {
+        // Only intercept fusion_deliberate
+        if (input.tool !== "fusion_deliberate") {
             return;
         }
         // Mark fusion complete regardless of result

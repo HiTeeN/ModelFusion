@@ -1,7 +1,7 @@
 import type { Plugin } from "@opencode-ai/plugin";
 /**
  * Creates a ModelFusion plugin instance that enables multi-model deliberation
- * in OpenCode. When installed, the plugin registers the `fusion:deliberate`
+ * in OpenCode. When installed, the plugin registers the `fusion_deliberate`
  * tool and several lifecycle hooks that orchestrate panel discussions among
  * multiple AI models.
  *
@@ -28,8 +28,5 @@ import type { Plugin } from "@opencode-ai/plugin";
  */
 export declare const FusionPlugin: Plugin;
 export declare const server: Plugin;
-declare const _default: {
-    server: Plugin;
-};
-export default _default;
+export default FusionPlugin;
 //# sourceMappingURL=index.d.ts.map

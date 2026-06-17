@@ -29,7 +29,7 @@ export interface ChatMessageOutput {
  *
  * Modes:
  * - **manual**: Messages pass through unchanged. Fusion is only triggered
- *   via the `fusion:deliberate` tool.
+ *   via the `fusion_deliberate` tool.
  * - **auto**: Every incoming message triggers fusion.
  * - **threshold**: Fusion triggers when the prompt exceeds `minPromptLength`
  *   or contains any of the configured `keywords`.

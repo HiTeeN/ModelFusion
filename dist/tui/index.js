@@ -57,7 +57,5 @@ export const FusionTuiPlugin = async (api, _options, _meta) => {
     });
 };
 export const tui = FusionTuiPlugin;
-export default {
-    tui,
-};
+export default FusionTuiPlugin;
 //# sourceMappingURL=index.js.map

@@ -19,8 +19,5 @@ import type { TuiPlugin } from "@opencode-ai/plugin/tui";
  */
 export declare const FusionTuiPlugin: TuiPlugin;
 export declare const tui: TuiPlugin;
-declare const _default: {
-    tui: TuiPlugin;
-};
-export default _default;
+export default FusionTuiPlugin;
 //# sourceMappingURL=index.d.ts.map

@@ -32,7 +32,7 @@ export interface ToolExecuteAfterOutput {
     metadata: any;
 }
 /**
- * Creates a tool.execute.before hook that intercepts fusion:deliberate calls.
+ * Creates a tool.execute.before hook that intercepts fusion_deliberate calls.
  *
  * For fusion tools:
  *   - Validates that required args are present
@@ -43,7 +43,7 @@ export interface ToolExecuteAfterOutput {
  */
 export declare function createToolExecuteBeforeHook(pluginState: ToolExecutePluginState): (input: ToolExecuteBeforeInput, output: ToolExecuteBeforeOutput) => Promise<void>;
 /**
- * Creates a tool.execute.after hook that formats fusion:deliberate output.
+ * Creates a tool.execute.after hook that formats fusion_deliberate output.
  *
  * For fusion tools:
  *   - Formats output with analysis summary, final answer, cost, degradation notice

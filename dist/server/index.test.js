@@ -21,7 +21,7 @@ describe("FusionPlugin", () => {
     test("is a function", () => {
         expect(typeof FusionPlugin).toBe("function");
         expect(typeof server).toBe("function");
-        expect(pluginModule.server).toBe(server);
+        expect(pluginModule).toBe(FusionPlugin);
     });
     // -----------------------------------------------------------------------
     test("returns a Hooks object with all required keys", async () => {
@@ -52,12 +52,12 @@ describe("FusionPlugin", () => {
         expect(hooks.tool).not.toBeNull();
     });
     // -----------------------------------------------------------------------
-    test("registers the fusion:deliberate tool", async () => {
+    test("registers the fusion_deliberate tool", async () => {
         const hooks = await FusionPlugin(mockPluginInput());
-        expect(hooks.tool).toHaveProperty("fusion:deliberate");
-        expect(hooks.tool["fusion:deliberate"]).toHaveProperty("description");
-        expect(hooks.tool["fusion:deliberate"]).toHaveProperty("args");
-        expect(typeof hooks.tool["fusion:deliberate"].execute).toBe("function");
+        expect(hooks.tool).toHaveProperty("fusion_deliberate");
+        expect(hooks.tool.fusion_deliberate).toHaveProperty("description");
+        expect(hooks.tool.fusion_deliberate).toHaveProperty("args");
+        expect(typeof hooks.tool.fusion_deliberate.execute).toBe("function");
     });
     // -----------------------------------------------------------------------
     test("invalid config — uses defaults and does not crash", async () => {
@@ -110,7 +110,7 @@ describe("FusionPlugin", () => {
         // Event hook
         await expect(hooks.event({ event: {} })).resolves.toBeUndefined();
         // Tool execution — resolves even without a valid pipeline client (pipeline catches errors)
-        await expect(hooks.tool["fusion:deliberate"].execute({ prompt: "test" }, {})).resolves.toBeDefined();
+        await expect(hooks.tool.fusion_deliberate.execute({ prompt: "test" }, {})).resolves.toBeDefined();
     });
 });
 //# sourceMappingURL=index.test.js.map
